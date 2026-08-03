@@ -1,11 +1,16 @@
 export type ThemeMode = 'light' | 'dark';
 export type ThemeSetting = ThemeMode | 'auto';
+export type CalendarViewSetting = 'auto' | 'dayGridMonth' | 'listWeek';
 
 export interface Settings {
   theme: ThemeSetting;
   firstDay: number;
   timezone: string;
   hour12: boolean;
+  showPokemonSprites: boolean;
+  rotatePokemonSprites: boolean;
+  showEventTimes: boolean;
+  defaultCalendarView: CalendarViewSetting;
 }
 
 export interface Timezone {

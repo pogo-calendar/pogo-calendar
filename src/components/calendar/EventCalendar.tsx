@@ -54,7 +54,13 @@ function EventCalendar({
 }: EventCalendarProps) {
   const calendarRef = useRef<FullCalendar>(null);
   const { settings } = useSettingsContext();
-  const { firstDay, hour12, timezone } = settings;
+  const { defaultCalendarView, firstDay, hour12, timezone } = settings;
+  const resolvedDefaultView =
+    defaultCalendarView === 'auto'
+      ? isMobile
+        ? 'listWeek'
+        : 'dayGridMonth'
+      : defaultCalendarView;
 
   const [popoverState, setPopoverState] = useState<{
     event: CalendarEvent | null;
@@ -63,10 +69,10 @@ function EventCalendar({
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      calendarRef.current?.getApi().changeView(isMobile ? 'listWeek' : 'dayGridMonth');
+      calendarRef.current?.getApi().changeView(resolvedDefaultView);
     }, 0);
     return () => clearTimeout(timer);
-  }, [isMobile]);
+  }, [resolvedDefaultView]);
 
   const eventTimeFormat: FormatterInput = {
     hour: isMobile ? 'numeric' : hour12 ? 'numeric' : '2-digit',
@@ -201,7 +207,7 @@ function EventCalendar({
               center: 'title',
               right: 'dayGridMonth,listWeek',
             }}
-            initialView="dayGridMonth"
+            initialView={resolvedDefaultView}
             events={events}
             eventClick={handleEventClick}
             eventContent={renderEventContent}

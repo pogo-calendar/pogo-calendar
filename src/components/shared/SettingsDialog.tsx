@@ -10,6 +10,7 @@ import { IconButton } from '../ui/icon-button';
 import { Label } from '../ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { Sheet, SheetBody, SheetContent, SheetHeader, SheetTitle } from '../ui/sheet';
+import { Switch } from '../ui/switch';
 import { ToggleGroup, ToggleGroupItem } from '../ui/toggle-group';
 
 const themeOptions: { value: ThemeSetting; text: string; Icon: React.ElementType }[] = [
@@ -22,6 +23,19 @@ interface SettingsDialogProps {
   open: boolean;
   onClose: () => void;
   onSettingsChange: (newSettings: Partial<Settings>) => void;
+}
+
+function SettingsSection({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <section className="space-y-2">
+      <h2 className="px-0.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+        {title}
+      </h2>
+      <div className="divide-y divide-border overflow-hidden rounded-xl border border-border">
+        {children}
+      </div>
+    </section>
+  );
 }
 
 function SettingsDialogComponent({ open, onClose, onSettingsChange }: SettingsDialogProps) {
@@ -73,32 +87,29 @@ function SettingsDialogComponent({ open, onClose, onSettingsChange }: SettingsDi
             <X className="h-4 w-4" />
           </IconButton>
         </SheetHeader>
-        <SheetBody className="space-y-6">
-          <div className="space-y-2.5">
-            <Label>Appearance</Label>
-            <ToggleGroup
-              type="single"
-              value={settings.theme}
-              onValueChange={(value) => value && handleSettingChange('theme', value)}
-              className="grid w-full grid-cols-3 gap-2 bg-transparent p-0"
-            >
-              {themeOptions.map(({ value, text, Icon }) => (
-                <ToggleGroupItem
-                  key={value}
-                  value={value}
-                  className="flex flex-col gap-1 rounded-lg border border-border py-3 data-[state=on]:border-primary data-[state=on]:bg-accent"
-                >
-                  <Icon className="h-5 w-5" />
-                  {text}
-                </ToggleGroupItem>
-              ))}
-            </ToggleGroup>
-          </div>
+        <SheetBody className="space-y-5">
+          <SettingsSection title="Appearance">
+            <div className="space-y-2.5 p-3">
+              <Label>Theme</Label>
+              <ToggleGroup
+                type="single"
+                value={settings.theme}
+                onValueChange={(value) => value && handleSettingChange('theme', value)}
+                className="grid w-full grid-cols-3"
+              >
+                {themeOptions.map(({ value, text, Icon }) => (
+                  <ToggleGroupItem key={value} value={value} className="w-full">
+                    <Icon />
+                    {text}
+                  </ToggleGroupItem>
+                ))}
+              </ToggleGroup>
+            </div>
+          </SettingsSection>
 
-          <div className="space-y-2.5">
-            <Label>Calendar Display</Label>
-            <div className="space-y-1.5">
-              <span className="text-xs text-muted-foreground">Week Starts On</span>
+          <SettingsSection title="Calendar Display">
+            <div className="space-y-2 p-3">
+              <Label>Week Starts On</Label>
               <Select
                 value={String(settings.firstDay)}
                 onValueChange={(value) => handleSettingChange('firstDay', Number(value))}
@@ -115,12 +126,82 @@ function SettingsDialogComponent({ open, onClose, onSettingsChange }: SettingsDi
                 </SelectContent>
               </Select>
             </div>
-          </div>
+            <div className="space-y-2.5 p-3">
+              <Label>Default View</Label>
+              <ToggleGroup
+                type="single"
+                value={settings.defaultCalendarView}
+                onValueChange={(value) =>
+                  value && handleSettingChange('defaultCalendarView', value)
+                }
+                className="grid w-full grid-cols-3"
+              >
+                <ToggleGroupItem value="auto" className="w-full">
+                  Automatic
+                </ToggleGroupItem>
+                <ToggleGroupItem value="dayGridMonth" className="w-full">
+                  Month
+                </ToggleGroupItem>
+                <ToggleGroupItem value="listWeek" className="w-full">
+                  List
+                </ToggleGroupItem>
+              </ToggleGroup>
+              <p className="text-xs text-muted-foreground">
+                Automatic uses Month on larger screens and List on mobile
+              </p>
+            </div>
+          </SettingsSection>
 
-          <div className="space-y-2.5">
-            <Label>Time & Date</Label>
-            <div className="space-y-1.5">
-              <span className="text-xs text-muted-foreground">Time Zone</span>
+          <SettingsSection title="Event Display">
+            <div className="flex items-center justify-between gap-4 p-3">
+              <div className="space-y-0.5">
+                <Label htmlFor="show-pokemon-sprites">Pokémon Sprites</Label>
+                <p className="text-xs text-muted-foreground">
+                  Show Pokémon sprites in calendar events
+                </p>
+              </div>
+              <Switch
+                id="show-pokemon-sprites"
+                checked={settings.showPokemonSprites}
+                onCheckedChange={(checked) =>
+                  handleSettingChange('showPokemonSprites', checked)
+                }
+              />
+            </div>
+            <div className="flex items-center justify-between gap-4 p-3">
+              <div className="space-y-0.5">
+                <Label htmlFor="rotate-pokemon-sprites">Rotate Multiple Sprites</Label>
+                <p className="text-xs text-muted-foreground">
+                  Cycle through Pokémon for multi-Pokémon events
+                </p>
+              </div>
+              <Switch
+                id="rotate-pokemon-sprites"
+                checked={settings.rotatePokemonSprites}
+                disabled={!settings.showPokemonSprites}
+                onCheckedChange={(checked) =>
+                  handleSettingChange('rotatePokemonSprites', checked)
+                }
+              />
+            </div>
+            <div className="flex items-center justify-between gap-4 p-3">
+              <div className="space-y-0.5">
+                <Label htmlFor="show-event-times">Event Times</Label>
+                <p className="text-xs text-muted-foreground">
+                  Show event times in Month view
+                </p>
+              </div>
+              <Switch
+                id="show-event-times"
+                checked={settings.showEventTimes}
+                onCheckedChange={(checked) => handleSettingChange('showEventTimes', checked)}
+              />
+            </div>
+          </SettingsSection>
+
+          <SettingsSection title="Time & Date">
+            <div className="space-y-2 p-3">
+              <Label>Time Zone</Label>
               <Combobox
                 value={settings.timezone}
                 onChange={(value) => handleSettingChange('timezone', value)}
@@ -130,26 +211,23 @@ function SettingsDialogComponent({ open, onClose, onSettingsChange }: SettingsDi
                 searchPlaceholder="Search timezones..."
               />
             </div>
-            <ToggleGroup
-              type="single"
-              value={String(settings.hour12)}
-              onValueChange={(value) => value && handleSettingChange('hour12', value === 'true')}
-              className="grid w-full grid-cols-2 gap-2 bg-transparent p-0"
-            >
-              <ToggleGroupItem
-                value="true"
-                className="rounded-lg border border-border py-2 data-[state=on]:border-primary data-[state=on]:bg-accent"
+            <div className="space-y-2.5 p-3">
+              <Label>Time Format</Label>
+              <ToggleGroup
+                type="single"
+                value={String(settings.hour12)}
+                onValueChange={(value) => value && handleSettingChange('hour12', value === 'true')}
+                className="grid w-full grid-cols-2"
               >
-                12-hour
-              </ToggleGroupItem>
-              <ToggleGroupItem
-                value="false"
-                className="rounded-lg border border-border py-2 data-[state=on]:border-primary data-[state=on]:bg-accent"
-              >
-                24-hour
-              </ToggleGroupItem>
-            </ToggleGroup>
-          </div>
+                <ToggleGroupItem value="true" className="w-full">
+                  12-hour
+                </ToggleGroupItem>
+                <ToggleGroupItem value="false" className="w-full">
+                  24-hour
+                </ToggleGroupItem>
+              </ToggleGroup>
+            </div>
+          </SettingsSection>
         </SheetBody>
         <div className="flex shrink-0 justify-end border-t border-border px-4 py-3">
           <Button onClick={onClose}>Done</Button>

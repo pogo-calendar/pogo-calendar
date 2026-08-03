@@ -4,7 +4,9 @@ import React from 'react';
 import { useSettingsContext } from '../../hooks/useSettingsContext';
 import { useResolvedThemeMode } from '../../hooks/useThemeMode';
 import type { CalendarEvent } from '../../types/events';
+import { getCalendarSprites } from '../../utils/calendarSpriteUtils';
 import { colorWithAlpha, getColorForCategory } from '../../utils/colorUtils';
+import { RotatingPokemonSprite } from './RotatingPokemonSprite';
 
 interface CalendarEventContentProps {
   eventInfo: EventContentArg;
@@ -25,20 +27,35 @@ export const CalendarEventContent = React.memo(function CalendarEventContent({
   const mode = useResolvedThemeMode(settings.theme);
   const { category, article_url } = eventInfo.event.extendedProps;
   const baseColor = getColorForCategory(category, mode);
+  const calendarEvent = eventInfo.event as unknown as CalendarEvent;
+  const sprites = settings.showPokemonSprites ? getCalendarSprites(calendarEvent) : [];
+  const showEventTime = settings.showEventTimes || eventInfo.view.type !== 'dayGridMonth';
 
   return (
     <div
-      className="group box-border flex min-h-5 w-full cursor-pointer items-center justify-between overflow-hidden rounded px-1 py-0.5 transition-all duration-200 hover:-translate-y-px sm:px-1.5"
+      className="group box-border flex min-h-5 w-full cursor-pointer items-center justify-between rounded px-1 py-0.5 transition-all duration-200 hover:-translate-y-px sm:px-1.5"
       style={{
         backgroundColor: colorWithAlpha(baseColor, 0.15),
         borderLeft: `3px solid ${baseColor}`,
       }}
-      onMouseEnter={(e) => onMouseEnter(e, eventInfo.event as unknown as CalendarEvent)}
+      onMouseEnter={(e) => onMouseEnter(e, calendarEvent)}
       onMouseLeave={onMouseLeave}
     >
-      <div className="flex items-center gap-1 overflow-hidden whitespace-nowrap sm:gap-1.5">
-        <span className="min-w-fit text-[0.65rem] font-bold opacity-80 sm:text-[0.7rem]">{eventInfo.timeText}</span>
-        <span className="overflow-hidden text-ellipsis whitespace-nowrap text-[0.65rem] font-medium sm:text-[0.7rem]">
+      <div className="flex min-w-0 flex-1 items-center gap-1 whitespace-nowrap sm:gap-1.5">
+        {showEventTime && eventInfo.timeText && (
+          <span className="min-w-fit text-[0.65rem] font-bold opacity-80 sm:text-[0.7rem]">
+            {eventInfo.timeText}
+          </span>
+        )}
+        {sprites.length > 0 && (
+          <RotatingPokemonSprite
+            key={article_url}
+            eventId={article_url}
+            rotate={settings.rotatePokemonSprites}
+            sprites={sprites}
+          />
+        )}
+        <span className="min-w-0 overflow-hidden text-ellipsis whitespace-nowrap text-[0.65rem] font-medium sm:text-[0.7rem]">
           {eventInfo.event.title}
         </span>
       </div>

@@ -9,6 +9,10 @@ const initialSettings: Settings = {
   firstDay: 0,
   timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
   hour12: true,
+  showPokemonSprites: true,
+  rotatePokemonSprites: true,
+  showEventTimes: true,
+  defaultCalendarView: 'auto',
 };
 
 function isValidTimeZone(value: unknown): value is string {
@@ -19,6 +23,10 @@ function isValidTimeZone(value: unknown): value is string {
   } catch {
     return false;
   }
+}
+
+function getBooleanSetting(value: unknown, fallback: boolean): boolean {
+  return typeof value === 'boolean' ? value : fallback;
 }
 
 function loadSettings(): Settings {
@@ -40,10 +48,22 @@ function loadSettings(): Settings {
     timezone: isValidTimeZone(saved.timezone)
       ? saved.timezone
       : initialSettings.timezone,
-    hour12:
-      typeof saved.hour12 === 'boolean'
-        ? saved.hour12
-        : initialSettings.hour12,
+    hour12: getBooleanSetting(saved.hour12, initialSettings.hour12),
+    showPokemonSprites: getBooleanSetting(
+      saved.showPokemonSprites,
+      initialSettings.showPokemonSprites
+    ),
+    rotatePokemonSprites: getBooleanSetting(
+      saved.rotatePokemonSprites,
+      initialSettings.rotatePokemonSprites
+    ),
+    showEventTimes: getBooleanSetting(saved.showEventTimes, initialSettings.showEventTimes),
+    defaultCalendarView:
+      saved.defaultCalendarView === 'auto' ||
+      saved.defaultCalendarView === 'dayGridMonth' ||
+      saved.defaultCalendarView === 'listWeek'
+        ? saved.defaultCalendarView
+        : initialSettings.defaultCalendarView,
   };
 }
 
