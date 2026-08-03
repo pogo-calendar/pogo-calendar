@@ -154,6 +154,16 @@ const faqData: FaqDataItem[] = [
     ],
   },
   {
+    question: 'What can I customize in Settings?',
+    answer: [
+      {
+        type: 'text',
+        content:
+          'Settings let you choose the theme, first day of the week, default calendar view, time zone, and 12- or 24-hour time format. Event display options control Pokémon sprites, rotation for multi-Pokémon events, and event times in month view. These preferences are stored in your browser.',
+      },
+    ],
+  },
+  {
     question: 'How can I suggest a feature or report a bug?',
     answer: [
       { type: 'text', content: "Feedback is always welcome! Please visit the project's " },

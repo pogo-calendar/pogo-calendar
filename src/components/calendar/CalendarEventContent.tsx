@@ -33,7 +33,7 @@ export const CalendarEventContent = React.memo(function CalendarEventContent({
 
   return (
     <div
-      className="group box-border flex min-h-5 w-full cursor-pointer items-center justify-between overflow-hidden rounded px-1 py-0.5 transition-all duration-200 hover:-translate-y-px sm:px-1.5"
+      className="group box-border flex min-h-5 w-full cursor-pointer items-center justify-between rounded px-1 py-0.5 transition-all duration-200 hover:-translate-y-px sm:px-1.5"
       style={{
         backgroundColor: colorWithAlpha(baseColor, 0.15),
         borderLeft: `3px solid ${baseColor}`,
@@ -41,7 +41,7 @@ export const CalendarEventContent = React.memo(function CalendarEventContent({
       onMouseEnter={(e) => onMouseEnter(e, calendarEvent)}
       onMouseLeave={onMouseLeave}
     >
-      <div className="flex items-center gap-1 overflow-hidden whitespace-nowrap sm:gap-1.5">
+      <div className="flex min-w-0 flex-1 items-center gap-1 whitespace-nowrap sm:gap-1.5">
         {showEventTime && eventInfo.timeText && (
           <span className="min-w-fit text-[0.65rem] font-bold opacity-80 sm:text-[0.7rem]">
             {eventInfo.timeText}
@@ -55,7 +55,7 @@ export const CalendarEventContent = React.memo(function CalendarEventContent({
             sprites={sprites}
           />
         )}
-        <span className="overflow-hidden text-ellipsis whitespace-nowrap text-[0.65rem] font-medium sm:text-[0.7rem]">
+        <span className="min-w-0 overflow-hidden text-ellipsis whitespace-nowrap text-[0.65rem] font-medium sm:text-[0.7rem]">
           {eventInfo.event.title}
         </span>
       </div>

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useMediaQuery } from '../../hooks/useMediaQuery';
+import { cn } from '../../lib/utils';
 import type { CalendarSprite } from '../../utils/calendarSpriteUtils';
 
 const ROTATION_INTERVAL_MS = 3000;
@@ -42,19 +43,25 @@ export function RotatingPokemonSprite({ eventId, rotate, sprites }: RotatingPoke
 
   if (availableSprites.length === 0) return null;
 
-  const sprite = availableSprites[rotationIndex % availableSprites.length];
+  const activeIndex = rotationIndex % availableSprites.length;
 
   return (
-    <img
-      key={sprite.asset_url}
-      src={sprite.asset_url}
-      alt=""
-      aria-hidden="true"
-      draggable={false}
-      className="h-5 w-5 shrink-0 animate-in object-contain duration-200 fade-in"
-      onError={() => {
-        setFailedUrls((current) => new Set(current).add(sprite.asset_url));
-      }}
-    />
+    <span className="relative z-10 h-5 w-5 shrink-0" aria-hidden="true">
+      {availableSprites.map((sprite, index) => (
+        <img
+          key={sprite.asset_url}
+          src={sprite.asset_url}
+          alt=""
+          draggable={false}
+          className={cn(
+            'pointer-events-none absolute bottom-0 left-1/2 h-9 w-9 max-w-none -translate-x-1/2 origin-bottom object-contain transition-[opacity,transform] duration-300 ease-in-out',
+            index === activeIndex ? 'scale-100 opacity-100' : 'scale-90 opacity-0'
+          )}
+          onError={() => {
+            setFailedUrls((current) => new Set(current).add(sprite.asset_url));
+          }}
+        />
+      ))}
+    </span>
   );
 }

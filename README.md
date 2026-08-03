@@ -15,13 +15,15 @@ You can view the live application here: `https://zhenga8533.github.io/pogo-calen
 ### Dynamic Calendar & Theming
 
 - **Multiple Views:** View events in responsive month and weekly list views, powered by FullCalendar.
-- **Light & Dark Modes:** A theme toggle with persistence in `localStorage`.
+- **Configurable Calendar Display:** Choose an automatic, month, or list default view; set the first day of the week; and show or hide event times in month view.
+- **Theme Modes:** Choose a light, dark, or automatic system theme with persistence in `localStorage`.
 - **Custom Dark Mode Theming:** Thoroughly styled dark mode that covers all aspects of the calendar, including headers and pop-ups.
 - **Responsive Header:** A modern "glassmorphism" header that becomes opaque on scroll and adapts its layout for mobile.
 
 ### Event Management
 
 - **Color-Coded Events:** Events are colored by category, with dynamically generated colors for any new, unknown categories.
+- **Pokémon Event Sprites:** Focused events can display featured Pokémon, raid bosses, or a single spawn directly in the calendar, with optional rotation for small multi-Pokémon groups.
 - **Save/Favorite Events:** Mark events as "saved" with a star icon, both on the event and in the details pop-up.
 - **Custom Events:** Full CRUD (Create, Read, Update, Delete) functionality for user-created events.
 - **"Add to Calendar":** Export any event to a universal `.ics` file that can be imported into Google Calendar, Apple Calendar, Outlook, etc.
@@ -80,6 +82,7 @@ src/
 │   ├── calendar/         # Calendar-specific components
 │   │   ├── EventCalendar.tsx
 │   │   ├── CalendarEventContent.tsx
+│   │   ├── RotatingPokemonSprite.tsx
 │   │   └── CalendarSkeleton.tsx
 │   ├── events/           # Event management components
 │   │   ├── CreateEventDialog.tsx
@@ -173,6 +176,7 @@ src/
     ├── dateUtils.ts
     ├── storageUtils.ts
     ├── eventTimeUtils.ts
+    ├── calendarSpriteUtils.ts
     └── calendarUtils.ts
 ```
 

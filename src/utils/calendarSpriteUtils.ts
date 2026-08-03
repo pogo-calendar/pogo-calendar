@@ -18,7 +18,10 @@ function getPokemonList(event: CalendarEvent, field: PokemonField): EventPokemon
 }
 
 function withAssets(pokemon: EventPokemon[]): CalendarSprite[] {
-  return pokemon.filter((item): item is CalendarSprite => Boolean(item.asset_url));
+  return pokemon.filter(
+    (item): item is CalendarSprite =>
+      typeof item.asset_url === 'string' && item.asset_url.trim().length > 0
+  );
 }
 
 export function getCalendarSprites(event: CalendarEvent): CalendarSprite[] {
