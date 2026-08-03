@@ -1,5 +1,6 @@
 export type ThemeMode = 'light' | 'dark';
 export type ThemeSetting = ThemeMode | 'auto';
+export type CalendarViewSetting = 'auto' | 'dayGridMonth' | 'listWeek';
 
 export interface Settings {
   theme: ThemeSetting;
@@ -7,6 +8,7 @@ export interface Settings {
   timezone: string;
   hour12: boolean;
   showPokemonSprites: boolean;
+  defaultCalendarView: CalendarViewSetting;
 }
 
 export interface Timezone {

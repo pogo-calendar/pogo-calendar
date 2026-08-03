@@ -116,6 +116,29 @@ function SettingsDialogComponent({ open, onClose, onSettingsChange }: SettingsDi
                 </SelectContent>
               </Select>
             </div>
+            <div className="space-y-1.5">
+              <span className="text-xs text-muted-foreground">Default View</span>
+              <Select
+                value={settings.defaultCalendarView}
+                onValueChange={(value) => handleSettingChange('defaultCalendarView', value)}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="auto">Automatic</SelectItem>
+                  <SelectItem value="dayGridMonth">Month</SelectItem>
+                  <SelectItem value="listWeek">List</SelectItem>
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground">
+                Automatic uses Month on larger screens and List on mobile
+              </p>
+            </div>
+          </div>
+
+          <div className="space-y-2.5">
+            <Label>Event Display</Label>
             <div className="flex items-center justify-between gap-4 rounded-lg border border-border p-3">
               <div className="space-y-0.5">
                 <Label htmlFor="show-pokemon-sprites">Pokémon Sprites</Label>

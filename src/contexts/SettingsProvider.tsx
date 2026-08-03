@@ -10,6 +10,7 @@ const initialSettings: Settings = {
   timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
   hour12: true,
   showPokemonSprites: true,
+  defaultCalendarView: 'auto',
 };
 
 function isValidTimeZone(value: unknown): value is string {
@@ -49,6 +50,12 @@ function loadSettings(): Settings {
       typeof saved.showPokemonSprites === 'boolean'
         ? saved.showPokemonSprites
         : initialSettings.showPokemonSprites,
+    defaultCalendarView:
+      saved.defaultCalendarView === 'auto' ||
+      saved.defaultCalendarView === 'dayGridMonth' ||
+      saved.defaultCalendarView === 'listWeek'
+        ? saved.defaultCalendarView
+        : initialSettings.defaultCalendarView,
   };
 }
 
