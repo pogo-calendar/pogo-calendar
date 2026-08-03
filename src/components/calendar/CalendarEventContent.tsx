@@ -29,6 +29,7 @@ export const CalendarEventContent = React.memo(function CalendarEventContent({
   const baseColor = getColorForCategory(category, mode);
   const calendarEvent = eventInfo.event as unknown as CalendarEvent;
   const sprites = settings.showPokemonSprites ? getCalendarSprites(calendarEvent) : [];
+  const showEventTime = settings.showEventTimes || eventInfo.view.type !== 'dayGridMonth';
 
   return (
     <div
@@ -41,9 +42,18 @@ export const CalendarEventContent = React.memo(function CalendarEventContent({
       onMouseLeave={onMouseLeave}
     >
       <div className="flex items-center gap-1 overflow-hidden whitespace-nowrap sm:gap-1.5">
-        <span className="min-w-fit text-[0.65rem] font-bold opacity-80 sm:text-[0.7rem]">{eventInfo.timeText}</span>
+        {showEventTime && eventInfo.timeText && (
+          <span className="min-w-fit text-[0.65rem] font-bold opacity-80 sm:text-[0.7rem]">
+            {eventInfo.timeText}
+          </span>
+        )}
         {sprites.length > 0 && (
-          <RotatingPokemonSprite key={article_url} eventId={article_url} sprites={sprites} />
+          <RotatingPokemonSprite
+            key={article_url}
+            eventId={article_url}
+            rotate={settings.rotatePokemonSprites}
+            sprites={sprites}
+          />
         )}
         <span className="overflow-hidden text-ellipsis whitespace-nowrap text-[0.65rem] font-medium sm:text-[0.7rem]">
           {eventInfo.event.title}

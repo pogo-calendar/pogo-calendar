@@ -10,6 +10,8 @@ const initialSettings: Settings = {
   timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
   hour12: true,
   showPokemonSprites: true,
+  rotatePokemonSprites: true,
+  showEventTimes: true,
   defaultCalendarView: 'auto',
 };
 
@@ -50,6 +52,14 @@ function loadSettings(): Settings {
       typeof saved.showPokemonSprites === 'boolean'
         ? saved.showPokemonSprites
         : initialSettings.showPokemonSprites,
+    rotatePokemonSprites:
+      typeof saved.rotatePokemonSprites === 'boolean'
+        ? saved.rotatePokemonSprites
+        : initialSettings.rotatePokemonSprites,
+    showEventTimes:
+      typeof saved.showEventTimes === 'boolean'
+        ? saved.showEventTimes
+        : initialSettings.showEventTimes,
     defaultCalendarView:
       saved.defaultCalendarView === 'auto' ||
       saved.defaultCalendarView === 'dayGridMonth' ||

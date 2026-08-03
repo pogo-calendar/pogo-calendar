@@ -8,6 +8,8 @@ export interface Settings {
   timezone: string;
   hour12: boolean;
   showPokemonSprites: boolean;
+  rotatePokemonSprites: boolean;
+  showEventTimes: boolean;
   defaultCalendarView: CalendarViewSetting;
 }
 

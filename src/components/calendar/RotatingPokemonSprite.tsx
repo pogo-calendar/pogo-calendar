@@ -7,6 +7,7 @@ const REDUCED_MOTION_QUERY = '(prefers-reduced-motion: reduce)';
 
 interface RotatingPokemonSpriteProps {
   eventId: string;
+  rotate: boolean;
   sprites: CalendarSprite[];
 }
 
@@ -18,7 +19,7 @@ function getStableOffset(value: string, length: number): number {
   return hash % length;
 }
 
-export function RotatingPokemonSprite({ eventId, sprites }: RotatingPokemonSpriteProps) {
+export function RotatingPokemonSprite({ eventId, rotate, sprites }: RotatingPokemonSpriteProps) {
   const prefersReducedMotion = useMediaQuery(REDUCED_MOTION_QUERY);
   const [failedUrls, setFailedUrls] = useState<Set<string>>(() => new Set());
   const availableSprites = useMemo(
@@ -30,14 +31,14 @@ export function RotatingPokemonSprite({ eventId, sprites }: RotatingPokemonSprit
   );
 
   useEffect(() => {
-    if (prefersReducedMotion || availableSprites.length < 2) return;
+    if (!rotate || prefersReducedMotion || availableSprites.length < 2) return;
 
     const timer = window.setInterval(() => {
       setRotationIndex((current) => current + 1);
     }, ROTATION_INTERVAL_MS);
 
     return () => window.clearInterval(timer);
-  }, [availableSprites.length, prefersReducedMotion]);
+  }, [availableSprites.length, prefersReducedMotion, rotate]);
 
   if (availableSprites.length === 0) return null;
 
