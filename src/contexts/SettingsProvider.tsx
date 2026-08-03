@@ -9,6 +9,7 @@ const initialSettings: Settings = {
   firstDay: 0,
   timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
   hour12: true,
+  showPokemonSprites: true,
 };
 
 function isValidTimeZone(value: unknown): value is string {
@@ -44,6 +45,10 @@ function loadSettings(): Settings {
       typeof saved.hour12 === 'boolean'
         ? saved.hour12
         : initialSettings.hour12,
+    showPokemonSprites:
+      typeof saved.showPokemonSprites === 'boolean'
+        ? saved.showPokemonSprites
+        : initialSettings.showPokemonSprites,
   };
 }
 

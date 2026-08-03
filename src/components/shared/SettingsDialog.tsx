@@ -10,6 +10,7 @@ import { IconButton } from '../ui/icon-button';
 import { Label } from '../ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { Sheet, SheetBody, SheetContent, SheetHeader, SheetTitle } from '../ui/sheet';
+import { Switch } from '../ui/switch';
 import { ToggleGroup, ToggleGroupItem } from '../ui/toggle-group';
 
 const themeOptions: { value: ThemeSetting; text: string; Icon: React.ElementType }[] = [
@@ -114,6 +115,21 @@ function SettingsDialogComponent({ open, onClose, onSettingsChange }: SettingsDi
                   ))}
                 </SelectContent>
               </Select>
+            </div>
+            <div className="flex items-center justify-between gap-4 rounded-lg border border-border p-3">
+              <div className="space-y-0.5">
+                <Label htmlFor="show-pokemon-sprites">Pokémon Sprites</Label>
+                <p className="text-xs text-muted-foreground">
+                  Show Pokémon sprites in calendar events
+                </p>
+              </div>
+              <Switch
+                id="show-pokemon-sprites"
+                checked={settings.showPokemonSprites}
+                onCheckedChange={(checked) =>
+                  handleSettingChange('showPokemonSprites', checked)
+                }
+              />
             </div>
           </div>
 

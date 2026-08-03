@@ -4,7 +4,9 @@ import React from 'react';
 import { useSettingsContext } from '../../hooks/useSettingsContext';
 import { useResolvedThemeMode } from '../../hooks/useThemeMode';
 import type { CalendarEvent } from '../../types/events';
+import { getCalendarSprites } from '../../utils/calendarSpriteUtils';
 import { colorWithAlpha, getColorForCategory } from '../../utils/colorUtils';
+import { RotatingPokemonSprite } from './RotatingPokemonSprite';
 
 interface CalendarEventContentProps {
   eventInfo: EventContentArg;
@@ -25,6 +27,8 @@ export const CalendarEventContent = React.memo(function CalendarEventContent({
   const mode = useResolvedThemeMode(settings.theme);
   const { category, article_url } = eventInfo.event.extendedProps;
   const baseColor = getColorForCategory(category, mode);
+  const calendarEvent = eventInfo.event as unknown as CalendarEvent;
+  const sprites = settings.showPokemonSprites ? getCalendarSprites(calendarEvent) : [];
 
   return (
     <div
@@ -33,11 +37,14 @@ export const CalendarEventContent = React.memo(function CalendarEventContent({
         backgroundColor: colorWithAlpha(baseColor, 0.15),
         borderLeft: `3px solid ${baseColor}`,
       }}
-      onMouseEnter={(e) => onMouseEnter(e, eventInfo.event as unknown as CalendarEvent)}
+      onMouseEnter={(e) => onMouseEnter(e, calendarEvent)}
       onMouseLeave={onMouseLeave}
     >
       <div className="flex items-center gap-1 overflow-hidden whitespace-nowrap sm:gap-1.5">
         <span className="min-w-fit text-[0.65rem] font-bold opacity-80 sm:text-[0.7rem]">{eventInfo.timeText}</span>
+        {sprites.length > 0 && (
+          <RotatingPokemonSprite key={article_url} eventId={article_url} sprites={sprites} />
+        )}
         <span className="overflow-hidden text-ellipsis whitespace-nowrap text-[0.65rem] font-medium sm:text-[0.7rem]">
           {eventInfo.event.title}
         </span>
