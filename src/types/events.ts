@@ -37,7 +37,8 @@ export interface ApiEvent {
   end_time: string | number;
   article_url: string;
   banner_url: string;
-  description: string;
+  // Always present in events.json; legacy archived records may omit it.
+  description?: string;
   details: {
     bonuses?: string[];
     // All other fields (spawns, raids, shiny, features, eggs, moves) are Pokemon lists.

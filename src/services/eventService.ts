@@ -10,7 +10,7 @@ import {
   localDateTimeToInstant,
 } from '../utils/eventTimeUtils';
 import { getEventArchiveYears } from '../utils/eventHistoryUtils';
-import { parseEventData } from './dataValidation';
+import { parseArchiveEventData, parseEventData } from './dataValidation';
 
 type EventDetails = ApiEvent['details'];
 
@@ -150,7 +150,7 @@ async function fetchArchiveData(year: number): Promise<ApiResponse> {
     );
   }
 
-  const data = parseEventData(await response.json());
+  const data = parseArchiveEventData(await response.json());
   archiveDataCache.set(year, data);
   return data;
 }
