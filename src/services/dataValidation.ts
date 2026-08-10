@@ -294,8 +294,8 @@ export const parseEventData = (value: unknown): Record<string, ApiEvent[]> =>
   parseEventSections(value, 'events', false);
 
 /**
- * Parses a yearly event archive. Archives are point-in-time snapshots, so
- * legacy records may omit `description`; every other field is parsed strictly.
+ * Parses a yearly event archive. Archived events whose source page has been
+ * removed may omit `description`; every other field is parsed strictly.
  */
 export const parseArchiveEventData = (
   value: unknown
