@@ -1,6 +1,9 @@
 export const GITHUB_EVENTS_API_URL =
   'https://raw.githubusercontent.com/zhenga8533/leak-duck/data/events.json';
 
+export const getEventArchiveApiUrl = (year: number) =>
+  `https://raw.githubusercontent.com/zhenga8533/leak-duck/data/archives/archive_${year}.json`;
+
 export const GITHUB_LAST_UPDATED_API_URL =
   'https://api.github.com/repos/zhenga8533/leak-duck/commits?sha=data&path=events.json&page=1&per_page=1';
 

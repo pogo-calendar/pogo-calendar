@@ -14,28 +14,37 @@ export function EventDataProvider({ children }: { children: React.ReactNode }) {
     allEvents: apiEvents,
     loading,
     error,
+    historyLoading,
+    historyError,
     refetch: refetchEvents,
-  } = useEventData(settings.timezone);
+    refetchHistory,
+  } = useEventData(settings.timezone, settings.showEventHistory);
   const { eventNotes, updateNote } = useEventNotes();
 
   const value = useMemo(
     () => ({
       loading,
       error,
+      historyLoading,
+      historyError,
       allEvents: apiEvents,
       eventNotes,
       selectedEvent,
       setSelectedEvent,
       refetchEvents,
+      refetchHistory,
       updateNote,
     }),
     [
       loading,
       error,
+      historyLoading,
+      historyError,
       apiEvents,
       eventNotes,
       selectedEvent,
       refetchEvents,
+      refetchHistory,
       updateNote,
     ]
   );

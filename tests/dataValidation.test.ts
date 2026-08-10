@@ -1,9 +1,30 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import {
+  parseArchiveEventData,
+  parseEventData,
   parseRaidBossData,
   parseResearchTaskData,
 } from '../src/services/dataValidation.ts';
+
+const apiEvent = (overrides: Record<string, unknown> = {}) => ({
+  title: 'Example Event',
+  category: 'Event',
+  is_local_time: false,
+  start_time: 1,
+  end_time: 2,
+  article_url: 'https://example.invalid/event',
+  banner_url: 'https://example.invalid/banner.jpg',
+  description: 'Event description.',
+  details: {},
+  ...overrides,
+});
+
+const withoutDescription = (overrides: Record<string, unknown> = {}) => {
+  const event: Record<string, unknown> = apiEvent(overrides);
+  delete event.description;
+  return event;
+};
 
 test('accepts leak-duck resource rewards and nullable assets', () => {
   const parsed = parseResearchTaskData({
@@ -43,6 +64,55 @@ test('accepts string raid tiers and nullable CP ranges', () => {
 
   assert.equal(parsed['Mega Raids'][0].tier, 'Mega Raids');
   assert.equal(parsed['Mega Raids'][0].cp_range, null);
+});
+
+test('requires a description for current events', () => {
+  assert.throws(
+    () => parseEventData({ Event: [withoutDescription()] }),
+    /events\.Event\[0\]\.description/
+  );
+});
+
+test('keeps a missing description undefined in archives', () => {
+  const parsed = parseArchiveEventData({ Event: [withoutDescription()] });
+
+  assert.equal(parsed.Event[0].description, undefined);
+  assert.equal(parsed.Event[0].title, 'Example Event');
+});
+
+test('rejects a non-string archive description', () => {
+  assert.throws(
+    () => parseArchiveEventData({ Event: [apiEvent({ description: 42 })] }),
+    /archive\.Event\[0\]\.description/
+  );
+});
+
+test('accepts both legacy and current Pokemon formats in archives', () => {
+  const parsed = parseArchiveEventData({
+    Event: [
+      apiEvent({
+        details: {
+          bonuses: ['2x Stardust'],
+          spawns: ['Zubat'],
+          raids: [
+            { name: 'Palkia', asset_url: null, shiny_available: true },
+          ],
+        },
+      }),
+    ],
+  });
+
+  assert.deepEqual(parsed.Event[0].details.spawns, ['Zubat']);
+  assert.deepEqual(parsed.Event[0].details.raids, [
+    { name: 'Palkia', asset_url: null, shiny_available: true },
+  ]);
+});
+
+test('rejects malformed archive records other than the description', () => {
+  assert.throws(
+    () => parseArchiveEventData({ Event: [withoutDescription({ details: [] })] }),
+    /archive\.Event\[0\]\.details/
+  );
 });
 
 test('rejects malformed remote records with a useful path', () => {

@@ -45,6 +45,8 @@ function App() {
 
   const {
     loading: eventsLoading,
+    historyLoading,
+    historyError,
     filters,
     setFilters,
     handleResetFilters,
@@ -55,6 +57,7 @@ function App() {
     allPokemon,
     allBonuses,
     refetchEvents,
+    refetchHistory,
     addEvent,
     updateEvent,
     deleteEvent,
@@ -288,6 +291,11 @@ function App() {
         open={activeDialog === 'settings'}
         onClose={closeDialog}
         onSettingsChange={handleSettingsChange}
+        historyLoading={historyLoading}
+        historyError={historyError}
+        onRetryEventHistory={() => {
+          void refetchHistory().catch(() => undefined);
+        }}
       />
       <CreateEventDialog
         open={activeDialog === 'create'}

@@ -10,6 +10,7 @@ export interface Settings {
   showPokemonSprites: boolean;
   rotatePokemonSprites: boolean;
   showEventTimes: boolean;
+  showEventHistory: boolean;
   defaultCalendarView: CalendarViewSetting;
 }
 

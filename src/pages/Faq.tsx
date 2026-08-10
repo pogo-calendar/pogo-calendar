@@ -159,7 +159,7 @@ const faqData: FaqDataItem[] = [
       {
         type: 'text',
         content:
-          'Settings let you choose the theme, first day of the week, default calendar view, time zone, and 12- or 24-hour time format. Event display options control Pokémon sprites, rotation for multi-Pokémon events, and event times in month view. These preferences are stored in your browser.',
+          'Settings let you choose the theme, first day of the week, default calendar view, time zone, and 12- or 24-hour time format. Event display options control Pokémon sprites, rotation for multi-Pokémon events, event times in month view, and opt-in historical events. Historical coverage begins in 2025, and the archive is downloaded only when enabled. These preferences are stored in your browser.',
       },
     ],
   },

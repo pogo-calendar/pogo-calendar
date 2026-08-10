@@ -12,6 +12,7 @@ const initialSettings: Settings = {
   showPokemonSprites: true,
   rotatePokemonSprites: true,
   showEventTimes: true,
+  showEventHistory: false,
   defaultCalendarView: 'auto',
 };
 
@@ -58,6 +59,10 @@ function loadSettings(): Settings {
       initialSettings.rotatePokemonSprites
     ),
     showEventTimes: getBooleanSetting(saved.showEventTimes, initialSettings.showEventTimes),
+    showEventHistory: getBooleanSetting(
+      saved.showEventHistory,
+      initialSettings.showEventHistory
+    ),
     defaultCalendarView:
       saved.defaultCalendarView === 'auto' ||
       saved.defaultCalendarView === 'dayGridMonth' ||

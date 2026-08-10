@@ -220,7 +220,12 @@ function parseEventDetails(
   );
 }
 
-function parseApiEvent(value: unknown, path: string, category: string): ApiEvent {
+function parseApiEvent(
+  value: unknown,
+  path: string,
+  category: string,
+  allowMissingDescription: boolean
+): ApiEvent {
   const event = asRecord(value, path);
   const isLocalTime = asBoolean(event.is_local_time, `${path}.is_local_time`);
   const parseTime = (time: unknown, timePath: string): string | number => {
@@ -241,7 +246,10 @@ function parseApiEvent(value: unknown, path: string, category: string): ApiEvent
     end_time: parseTime(event.end_time, `${path}.end_time`),
     article_url: asString(event.article_url, `${path}.article_url`),
     banner_url: asString(event.banner_url, `${path}.banner_url`),
-    description: asString(event.description, `${path}.description`),
+    description:
+      allowMissingDescription && event.description === undefined
+        ? undefined
+        : asString(event.description, `${path}.description`),
     details: parseEventDetails(event.details, `${path}.details`),
   };
 }
@@ -258,14 +266,37 @@ export const parseResearchTaskData = (value: unknown): ResearchTaskData =>
 export const parseRocketLineupData = (value: unknown): RocketLineupData =>
   parseSections(value, 'rocket_lineups', parseRocketSlot);
 
-export function parseEventData(value: unknown): Record<string, ApiEvent[]> {
-  const record = asRecord(value, 'events');
+function parseEventSections(
+  value: unknown,
+  label: string,
+  allowMissingDescription: boolean
+): Record<string, ApiEvent[]> {
+  const record = asRecord(value, label);
   return Object.fromEntries(
     Object.entries(record).map(([category, events]) => [
       category,
-      asArray(events, `events.${category}`).map((event, index) =>
-        parseApiEvent(event, `events.${category}[${index}]`, category)
+      asArray(events, `${label}.${category}`).map((event, index) =>
+        parseApiEvent(
+          event,
+          `${label}.${category}[${index}]`,
+          category,
+          allowMissingDescription
+        )
       ),
     ])
   );
 }
+
+/**
+ * Parses freshly published events, which always carry a description.
+ */
+export const parseEventData = (value: unknown): Record<string, ApiEvent[]> =>
+  parseEventSections(value, 'events', false);
+
+/**
+ * Parses a yearly event archive. Archived events whose source page has been
+ * removed may omit `description`; every other field is parsed strictly.
+ */
+export const parseArchiveEventData = (
+  value: unknown
+): Record<string, ApiEvent[]> => parseEventSections(value, 'archive', true);
