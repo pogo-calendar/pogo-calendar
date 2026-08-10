@@ -1,15 +1,22 @@
-import { GITHUB_EVENTS_API_URL, TIMEZONES_API_URL } from '../config/api';
+import {
+  GITHUB_EVENTS_API_URL,
+  TIMEZONES_API_URL,
+  getEventArchiveApiUrl,
+} from '../config/api';
 import type { ApiEvent, CalendarEvent } from '../types/events';
 import type { Timezone } from '../types/settings';
 import {
   formatInstantInTimeZone,
   localDateTimeToInstant,
 } from '../utils/eventTimeUtils';
+import { getEventArchiveYears } from '../utils/eventHistoryUtils';
 import { parseEventData } from './dataValidation';
 
 type EventDetails = ApiEvent['details'];
 
 type ApiResponse = Record<string, ApiEvent[]>;
+
+const archiveDataCache = new Map<number, ApiResponse>();
 
 interface TimezoneApiItem {
   text: string;
@@ -132,6 +139,22 @@ function transformApiData(
   return events;
 }
 
+async function fetchArchiveData(year: number): Promise<ApiResponse> {
+  const cached = archiveDataCache.get(year);
+  if (cached) return cached;
+
+  const response = await fetch(getEventArchiveApiUrl(year), { cache: 'no-store' });
+  if (!response.ok) {
+    throw new Error(
+      `Archive request for ${year} failed with status ${response.status}`
+    );
+  }
+
+  const data = parseEventData(await response.json());
+  archiveDataCache.set(year, data);
+  return data;
+}
+
 /**
  * Fetches events from the GitHub Events API and transforms them into CalendarEvent objects.
  *
@@ -149,6 +172,17 @@ export const fetchEvents = async (
   const data: ApiResponse = parseEventData(await response.json());
 
   return transformApiData(data, timezone);
+};
+
+export const fetchEventHistory = async (
+  timezone: string,
+  currentYear = new Date().getFullYear()
+): Promise<CalendarEvent[]> => {
+  const archives = await Promise.all(
+    getEventArchiveYears(currentYear).map(fetchArchiveData)
+  );
+
+  return archives.flatMap((archive) => transformApiData(archive, timezone));
 };
 
 /**

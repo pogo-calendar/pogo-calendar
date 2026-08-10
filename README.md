@@ -16,6 +16,7 @@ You can view the live application here: `https://zhenga8533.github.io/pogo-calen
 
 - **Multiple Views:** View events in responsive month and weekly list views, powered by FullCalendar.
 - **Configurable Calendar Display:** Choose an automatic, month, or list default view; set the first day of the week; and show or hide event times in month view.
+- **Optional Event History:** Load archived official events dating back to 2025 only when enabled in Settings.
 - **Theme Modes:** Choose a light, dark, or automatic system theme with persistence in `localStorage`.
 - **Custom Dark Mode Theming:** Thoroughly styled dark mode that covers all aspects of the calendar, including headers and pop-ups.
 - **Responsive Header:** A modern "glassmorphism" header that becomes opaque on scroll and adapts its layout for mobile.

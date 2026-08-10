@@ -4,6 +4,7 @@ import { dayOptions } from '../../config/eventFilter';
 import { useSettingsContext } from '../../hooks/useSettingsContext';
 import { fetchTimezones } from '../../services/eventService';
 import type { Settings, ThemeSetting, Timezone } from '../../types/settings';
+import { EVENT_ARCHIVE_START_YEAR } from '../../utils/eventHistoryUtils';
 import { Button } from '../ui/button';
 import { Combobox } from '../ui/combobox';
 import { IconButton } from '../ui/icon-button';
@@ -23,6 +24,9 @@ interface SettingsDialogProps {
   open: boolean;
   onClose: () => void;
   onSettingsChange: (newSettings: Partial<Settings>) => void;
+  historyLoading: boolean;
+  historyError: string | null;
+  onRetryEventHistory: () => void;
 }
 
 function SettingsSection({ title, children }: { title: string; children: React.ReactNode }) {
@@ -38,7 +42,14 @@ function SettingsSection({ title, children }: { title: string; children: React.R
   );
 }
 
-function SettingsDialogComponent({ open, onClose, onSettingsChange }: SettingsDialogProps) {
+function SettingsDialogComponent({
+  open,
+  onClose,
+  onSettingsChange,
+  historyLoading,
+  historyError,
+  onRetryEventHistory,
+}: SettingsDialogProps) {
   const { settings } = useSettingsContext();
   const [timezones, setTimezones] = useState<Timezone[]>([
     { text: settings.timezone, value: settings.timezone },
@@ -195,6 +206,43 @@ function SettingsDialogComponent({ open, onClose, onSettingsChange }: SettingsDi
                 id="show-event-times"
                 checked={settings.showEventTimes}
                 onCheckedChange={(checked) => handleSettingChange('showEventTimes', checked)}
+              />
+            </div>
+            <div className="flex items-start justify-between gap-4 p-3">
+              <div className="space-y-0.5">
+                <Label htmlFor="show-event-history">Event History</Label>
+                <p className="text-xs text-muted-foreground">
+                  Load archived official events. Historical coverage begins in{' '}
+                  {EVENT_ARCHIVE_START_YEAR}; earlier events are unavailable.
+                </p>
+                {historyLoading && settings.showEventHistory && (
+                  <p className="text-xs text-muted-foreground" role="status">
+                    Loading historical events…
+                  </p>
+                )}
+                {historyError && settings.showEventHistory && (
+                  <div className="flex items-center gap-2">
+                    <p className="text-xs text-destructive" role="alert">
+                      {historyError}
+                    </p>
+                    <Button
+                      type="button"
+                      variant="link"
+                      size="sm"
+                      className="h-auto p-0 text-xs"
+                      onClick={onRetryEventHistory}
+                    >
+                      Retry
+                    </Button>
+                  </div>
+                )}
+              </div>
+              <Switch
+                id="show-event-history"
+                checked={settings.showEventHistory}
+                onCheckedChange={(checked) =>
+                  handleSettingChange('showEventHistory', checked)
+                }
               />
             </div>
           </SettingsSection>

@@ -13,6 +13,8 @@ import { useFilterContext } from './useFilterContext';
 interface CalendarContextType {
   loading: boolean;
   error: string | null;
+  historyLoading: boolean;
+  historyError: string | null;
   filters: Filters;
   setFilters: (filters: Filters | ((prev: Filters) => Filters)) => void;
   handleResetFilters: () => void;
@@ -27,6 +29,7 @@ interface CalendarContextType {
   selectedEvent: CalendarEvent | null;
   setSelectedEvent: (event: CalendarEvent | null) => void;
   refetchEvents: () => Promise<void>;
+  refetchHistory: () => Promise<void>;
   handleToggleSaveEvent: (eventId: string) => void;
   addEvent: (eventData: NewEventData) => void;
   updateEvent: (eventId: string, eventData: NewEventData) => void;
@@ -95,11 +98,14 @@ export function useCalendarContext(): CalendarContextType {
     () => ({
       loading: eventData.loading,
       error: eventData.error,
+      historyLoading: eventData.historyLoading,
+      historyError: eventData.historyError,
       allEvents: combinedEvents,
       eventNotes: eventData.eventNotes,
       selectedEvent: eventData.selectedEvent,
       setSelectedEvent: eventData.setSelectedEvent,
       refetchEvents: eventData.refetchEvents,
+      refetchHistory: eventData.refetchHistory,
       updateNote: eventData.updateNote,
       allCategories: metadata.allCategories,
       allPokemon: metadata.allPokemon,
