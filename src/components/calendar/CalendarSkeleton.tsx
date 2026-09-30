@@ -6,67 +6,46 @@ interface CalendarSkeletonProps {
   isMobile: boolean;
 }
 
-const DesktopSkeletonHeader = () => (
-  <Card className="mb-4 p-4">
-    <div className="flex flex-col gap-3">
-      <div className="flex gap-3">
-        <Skeleton className="h-14 flex-[3]" />
-        <Skeleton className="h-14 flex-1" />
-      </div>
-      <div className="flex gap-3">
-        <Skeleton className="h-14 w-full" />
-        <Skeleton className="h-14 w-full" />
-      </div>
-      <div className="px-1">
-        <Skeleton className="mb-2 h-4 w-[15%]" />
-        <Skeleton className="h-4 w-full" />
-      </div>
-      <div className="h-px w-full bg-border" />
-      <div className="flex items-center justify-between gap-3">
-        <Skeleton className="h-9 w-36" />
-        <div className="flex gap-2">
-          <Skeleton className="h-9 w-28" />
-          <Skeleton className="h-9 w-24" />
-          <Skeleton className="h-9 w-24" />
-        </div>
-      </div>
-    </div>
-  </Card>
+const DAYS_PER_WEEK = 7;
+const MONTH_WEEK_ROWS = 5;
+const LIST_ROWS = 8;
+
+const MonthGridSkeleton = () => (
+  <div className="grid grid-cols-7 gap-1.5">
+    {Array.from({ length: DAYS_PER_WEEK }).map((_, index) => (
+      <Skeleton key={`day-${index}`} className="h-6" />
+    ))}
+    {Array.from({ length: DAYS_PER_WEEK * MONTH_WEEK_ROWS }).map((_, index) => (
+      <Skeleton key={index} className="h-24" />
+    ))}
+  </div>
 );
 
-const DesktopSkeletonGrid = () => {
-  const SKELETON_ROWS = 5;
-  const SKELETON_COLS = 7;
-
-  return (
-    <Card className="p-4">
-      <Skeleton className="mb-2 h-[50px] w-full" />
-      <div
-        className="grid gap-2"
-        style={{ gridTemplateColumns: `repeat(${SKELETON_COLS}, 1fr)` }}
-      >
-        {Array.from({ length: SKELETON_ROWS * SKELETON_COLS }).map((_, index) => (
-          <Skeleton key={index} className="h-[100px] w-full" />
-        ))}
-      </div>
-    </Card>
-  );
-};
+const ListSkeleton = () => (
+  <div className="flex flex-col gap-2">
+    {Array.from({ length: LIST_ROWS }).map((_, index) => (
+      <Skeleton key={index} className="h-10" />
+    ))}
+  </div>
+);
 
 function CalendarSkeletonComponent({ isMobile }: CalendarSkeletonProps) {
-  if (isMobile) {
-    return (
-      <div className="flex flex-col gap-3">
-        <Skeleton className="h-14 w-full" />
-        <Skeleton className="h-[75vh] w-full" />
-      </div>
-    );
-  }
-
   return (
     <div>
-      <DesktopSkeletonHeader />
-      <DesktopSkeletonGrid />
+      <div className="mb-6 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-end">
+        <div className="w-full max-w-md space-y-3">
+          <Skeleton className="h-9 w-3/4" />
+          <Skeleton className="h-5 w-full" />
+        </div>
+        <Skeleton className="h-10 w-20" />
+      </div>
+      <Card className="p-3 md:p-4">
+        <div className="mb-3 flex items-center justify-between gap-3 md:mb-4">
+          <Skeleton className="h-9 w-48" />
+          <Skeleton className="h-8 w-16" />
+        </div>
+        {isMobile ? <ListSkeleton /> : <MonthGridSkeleton />}
+      </Card>
     </div>
   );
 }

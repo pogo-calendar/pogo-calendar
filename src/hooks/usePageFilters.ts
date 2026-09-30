@@ -1,8 +1,12 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState, type Dispatch, type SetStateAction } from 'react';
 import type {
+  EggPoolFilterOptions,
   EggPoolFilters,
+  RaidBossFilterOptions,
   RaidBossFilters,
+  ResearchTaskFilterOptions,
   ResearchTaskFilters,
+  RocketLineupFilterOptions,
   RocketLineupFilters,
 } from '../types/pageFilters';
 
@@ -39,93 +43,66 @@ export const defaultRocketLineupFilters: RocketLineupFilters = {
   shinyOnly: false,
 };
 
-// Hook for Egg Pool filters
-export function useEggPoolFilters() {
-  const [filters, setFilters] = useState<EggPoolFilters>(
-    defaultEggPoolFilters
-  );
+export const emptyEggPoolOptions: EggPoolFilterOptions = { eggTiers: [], rarityTiers: [] };
+export const emptyRaidBossOptions: RaidBossFilterOptions = { raidTiers: [], types: [] };
+export const emptyResearchTaskOptions: ResearchTaskFilterOptions = { categories: [], rewardTypes: [] };
+export const emptyRocketLineupOptions: RocketLineupFilterOptions = { leaders: [] };
 
-  const resetFilters = useCallback(() => {
-    setFilters(defaultEggPoolFilters);
-  }, []);
+export const countEggPoolFilters = (filters: EggPoolFilters) =>
+  (filters.pokemonSearch ? 1 : 0) +
+  filters.selectedEggTiers.length +
+  filters.selectedRarityTiers.length +
+  (filters.shinyOnly ? 1 : 0);
 
-  const activeFilterCount = useMemo(() => {
-    return (
-      (filters.pokemonSearch ? 1 : 0) +
-      filters.selectedEggTiers.length +
-      filters.selectedRarityTiers.length +
-      (filters.shinyOnly ? 1 : 0)
-    );
-  }, [filters]);
+export const countRaidBossFilters = (filters: RaidBossFilters) =>
+  (filters.pokemonSearch ? 1 : 0) +
+  filters.selectedRaidTiers.length +
+  filters.selectedTypes.length +
+  (filters.shinyOnly ? 1 : 0) +
+  (filters.minCP > defaultRaidBossFilters.minCP || filters.maxCP < defaultRaidBossFilters.maxCP ? 1 : 0);
 
-  return { filters, setFilters, resetFilters, activeFilterCount };
+export const countResearchTaskFilters = (filters: ResearchTaskFilters) =>
+  (filters.taskSearch ? 1 : 0) +
+  (filters.pokemonSearch ? 1 : 0) +
+  filters.rewardTypes.length +
+  (filters.shinyOnly ? 1 : 0) +
+  filters.selectedCategories.length;
+
+export const countRocketLineupFilters = (filters: RocketLineupFilters) =>
+  (filters.pokemonSearch ? 1 : 0) +
+  filters.selectedLeaders.length +
+  filters.selectedSlots.length +
+  (filters.encounterOnly ? 1 : 0) +
+  (filters.shinyOnly ? 1 : 0);
+
+export interface PageFilterState<F, O> {
+  filters: F;
+  setFilters: Dispatch<SetStateAction<F>>;
+  resetFilters: () => void;
+  activeFilterCount: number;
+  options: O;
+  setOptions: Dispatch<SetStateAction<O>>;
 }
 
-// Hook for Raid Boss filters
-export function useRaidBossFilters() {
-  const [filters, setFilters] = useState<RaidBossFilters>(
-    defaultRaidBossFilters
+export function usePageFilterState<F, O>(
+  defaultFilters: F,
+  countActiveFilters: (filters: F) => number,
+  emptyOptions: O
+): PageFilterState<F, O> {
+  const [filters, setFilters] = useState<F>(defaultFilters);
+  const [options, setOptions] = useState<O>(emptyOptions);
+
+  const resetFilters = useCallback(() => setFilters(defaultFilters), [defaultFilters]);
+
+  return useMemo(
+    () => ({
+      filters,
+      setFilters,
+      resetFilters,
+      activeFilterCount: countActiveFilters(filters),
+      options,
+      setOptions,
+    }),
+    [filters, resetFilters, countActiveFilters, options]
   );
-
-  const resetFilters = useCallback(() => {
-    setFilters(defaultRaidBossFilters);
-  }, []);
-
-  const activeFilterCount = useMemo(() => {
-    return (
-      (filters.pokemonSearch ? 1 : 0) +
-      filters.selectedRaidTiers.length +
-      filters.selectedTypes.length +
-      (filters.shinyOnly ? 1 : 0) +
-      (filters.minCP > 0 || filters.maxCP < 60000 ? 1 : 0)
-    );
-  }, [filters]);
-
-  return { filters, setFilters, resetFilters, activeFilterCount };
-}
-
-// Hook for Research Task filters
-export function useResearchTaskFilters() {
-  const [filters, setFilters] = useState<ResearchTaskFilters>(
-    defaultResearchTaskFilters
-  );
-
-  const resetFilters = useCallback(() => {
-    setFilters(defaultResearchTaskFilters);
-  }, []);
-
-  const activeFilterCount = useMemo(() => {
-    return (
-      (filters.taskSearch ? 1 : 0) +
-      (filters.pokemonSearch ? 1 : 0) +
-      filters.rewardTypes.length +
-      (filters.shinyOnly ? 1 : 0) +
-      filters.selectedCategories.length
-    );
-  }, [filters]);
-
-  return { filters, setFilters, resetFilters, activeFilterCount };
-}
-
-// Hook for Rocket Lineup filters
-export function useRocketLineupFilters() {
-  const [filters, setFilters] = useState<RocketLineupFilters>(
-    defaultRocketLineupFilters
-  );
-
-  const resetFilters = useCallback(() => {
-    setFilters(defaultRocketLineupFilters);
-  }, []);
-
-  const activeFilterCount = useMemo(() => {
-    return (
-      (filters.pokemonSearch ? 1 : 0) +
-      filters.selectedLeaders.length +
-      filters.selectedSlots.length +
-      (filters.encounterOnly ? 1 : 0) +
-      (filters.shinyOnly ? 1 : 0)
-    );
-  }, [filters]);
-
-  return { filters, setFilters, resetFilters, activeFilterCount };
 }

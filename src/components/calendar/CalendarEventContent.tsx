@@ -3,6 +3,7 @@ import { Star } from 'lucide-react';
 import React from 'react';
 import { useSettingsContext } from '../../hooks/useSettingsContext';
 import { useResolvedThemeMode } from '../../hooks/useThemeMode';
+import { cn } from '../../lib/utils';
 import type { CalendarEvent } from '../../types/events';
 import { getCalendarSprites } from '../../utils/calendarSpriteUtils';
 import { colorWithAlpha, getColorForCategory } from '../../utils/colorUtils';
@@ -29,21 +30,24 @@ export const CalendarEventContent = React.memo(function CalendarEventContent({
   const baseColor = getColorForCategory(category, mode);
   const calendarEvent = eventInfo.event as unknown as CalendarEvent;
   const sprites = settings.showPokemonSprites ? getCalendarSprites(calendarEvent) : [];
-  const showEventTime = settings.showEventTimes || eventInfo.view.type !== 'dayGridMonth';
+  const showEventTime = settings.showEventTimes && eventInfo.view.type === 'dayGridMonth';
 
   return (
     <div
-      className="group box-border flex min-h-5 w-full cursor-pointer items-center justify-between rounded px-1 py-0.5 transition-all duration-200 hover:-translate-y-px sm:px-1.5"
-      style={{
-        backgroundColor: colorWithAlpha(baseColor, 0.15),
-        borderLeft: `3px solid ${baseColor}`,
-      }}
+      className="calendar-event-pill flex min-h-6 w-full cursor-pointer items-center justify-between gap-1 rounded-sm pl-1.5 text-xs"
+      style={
+        {
+          '--event-color': baseColor,
+          '--event-bg': colorWithAlpha(baseColor, 0.14),
+          '--event-bg-active': colorWithAlpha(baseColor, 0.26),
+        } as React.CSSProperties
+      }
       onMouseEnter={(e) => onMouseEnter(e, calendarEvent)}
       onMouseLeave={onMouseLeave}
     >
-      <div className="flex min-w-0 flex-1 items-center gap-1 whitespace-nowrap sm:gap-1.5">
+      <div className="flex min-w-0 flex-1 items-center gap-1.5 whitespace-nowrap">
         {showEventTime && eventInfo.timeText && (
-          <span className="min-w-fit text-[0.65rem] font-bold opacity-80 sm:text-[0.7rem]">
+          <span className="min-w-fit font-semibold tabular-nums opacity-75">
             {eventInfo.timeText}
           </span>
         )}
@@ -55,24 +59,22 @@ export const CalendarEventContent = React.memo(function CalendarEventContent({
             sprites={sprites}
           />
         )}
-        <span className="min-w-0 overflow-hidden text-ellipsis whitespace-nowrap text-[0.65rem] font-medium sm:text-[0.7rem]">
+        <span className="min-w-0 truncate font-medium">
           {eventInfo.event.title}
         </span>
       </div>
 
       <button
         type="button"
+        aria-label={isSaved ? 'Remove from saved events' : 'Save event'}
+        aria-pressed={isSaved}
         onClick={(e) => {
           e.stopPropagation();
           onToggleSave(article_url);
         }}
-        className="flex shrink-0 items-center justify-center p-0.5 text-muted-foreground transition-colors hover:text-primary"
+        className="flex size-6 shrink-0 items-center justify-center rounded-sm text-muted-foreground transition-colors hover:text-warning focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       >
-        <Star
-          className="h-3 w-3 sm:h-3.5 sm:w-3.5"
-          fill={isSaved ? 'hsl(var(--warning))' : 'none'}
-          style={{ color: isSaved ? 'hsl(var(--warning))' : undefined }}
-        />
+        <Star className={cn('size-3.5', isSaved && 'fill-warning text-warning')} />
       </button>
     </div>
   );

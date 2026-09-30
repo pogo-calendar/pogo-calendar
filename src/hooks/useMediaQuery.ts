@@ -17,3 +17,4 @@ export function useMediaQuery(query: string): boolean {
 }
 
 export const MOBILE_QUERY = '(max-width: 767px)';
+export const HOVER_QUERY = '(hover: hover)';

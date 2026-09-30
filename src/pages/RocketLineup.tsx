@@ -12,34 +12,28 @@ import { Badge } from '../components/ui/badge';
 import { Card, CardContent, INTERACTIVE_CARD_CLASSNAME } from '../components/ui/card';
 import { Separator } from '../components/ui/separator';
 import { ROCKET_LEADER_COLORS, ROCKET_LEADER_DESCRIPTIONS } from '../config/colorMapping';
-import { MOBILE_QUERY, useMediaQuery } from '../hooks/useMediaQuery';
+import { usePageFiltersContext } from '../hooks/usePageFiltersContext';
 import { usePageData } from '../hooks/usePageData';
 import { fetchRocketLineup } from '../services/dataService';
-import type { RocketLineupFilters } from '../types/pageFilters';
 import type { RocketLeader, RocketLineupData, RocketPokemon, RocketSlot } from '../types/rocketLineup';
 import { contrastColor } from '../utils/colorUtils';
 
 const LEADER_ORDER: RocketLeader[] = ['Giovanni', 'Cliff', 'Sierra', 'Arlo'];
 
-interface RocketLineupPageProps {
-  filters: RocketLineupFilters;
-  onSetFilterOptions: (options: { leaders: string[] }) => void;
-}
-
-function RocketLineupPage({ filters, onSetFilterOptions }: RocketLineupPageProps) {
+function RocketLineupPage() {
+  const { filters, setOptions } = usePageFiltersContext().rocketLineup;
   const { data, loading, error, refetch } = usePageData<RocketLineupData>(
     fetchRocketLineup,
     'Failed to load Team GO Rocket lineup data. Please try again later.'
   );
-  const isMobile = useMediaQuery(MOBILE_QUERY);
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
 
   useEffect(() => {
     if (data) {
       const leaders = Object.keys(data);
-      onSetFilterOptions({ leaders });
+      setOptions({ leaders });
     }
-  }, [data, onSetFilterOptions]);
+  }, [data, setOptions]);
 
   const filteredData = useMemo(() => {
     if (!data) return null;
@@ -240,7 +234,7 @@ function RocketLineupPage({ filters, onSetFilterOptions }: RocketLineupPageProps
   });
 
   return (
-    <div className={`py-4 ${isMobile ? 'pb-16' : ''}`}>
+    <div>
       <PageHeader
         title="Team GO Rocket Lineups"
         description="Current Pokémon used by Team GO Rocket leaders"

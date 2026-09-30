@@ -1,9 +1,10 @@
-import { lazy, Suspense, useCallback, useMemo, useState } from 'react';
+import { lazy, Suspense, useCallback, useState } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import CreateEventDialog from './components/events/CreateEventDialog';
 import { ExportEventDialog } from './components/events/ExportEventDialog';
 import Footer from './components/layout/Footer';
 import Header from './components/layout/Header';
+import PageLayout from './components/layout/PageLayout';
 import ErrorBoundary from './components/shared/ErrorBoundary';
 import { PageLoader } from './components/shared/PageLoader';
 import ScrollToTop from './components/shared/ScrollToTop';
@@ -14,12 +15,6 @@ import { useSettingsContext } from './hooks/useSettingsContext';
 import { useDialogs } from './hooks/useDialogs';
 import { useLastUpdated } from './hooks/useLastUpdated';
 import { MOBILE_QUERY, useMediaQuery } from './hooks/useMediaQuery';
-import {
-  useEggPoolFilters,
-  useRaidBossFilters,
-  useResearchTaskFilters,
-  useRocketLineupFilters,
-} from './hooks/usePageFilters';
 import { useThemeMode } from './hooks/useThemeMode';
 import { useToast } from './hooks/useToast';
 import type { CalendarEvent, NewEventData } from './types/events';
@@ -44,18 +39,11 @@ function App() {
   const [eventToEdit, setEventToEdit] = useState<CalendarEvent | null>(null);
 
   const {
-    loading: eventsLoading,
     historyLoading,
     historyError,
-    filters,
-    setFilters,
-    handleResetFilters,
     filteredEvents,
     allEvents,
     savedEventIds,
-    allCategories,
-    allPokemon,
-    allBonuses,
     refetchEvents,
     refetchHistory,
     addEvent,
@@ -63,51 +51,12 @@ function App() {
     deleteEvent,
   } = useCalendarContext();
 
-  // Page-specific filters
-  const eggPoolFilterState = useEggPoolFilters();
-  const raidBossFilterState = useRaidBossFilters();
-  const researchTaskFilterState = useResearchTaskFilters();
-  const rocketLineupFilterState = useRocketLineupFilters();
-
-  // Available filter options for each page
-  const [eggPoolOptions, setEggPoolOptions] = useState<{
-    eggTiers: string[];
-    rarityTiers: string[];
-  }>({ eggTiers: [], rarityTiers: [] });
-
-  const [raidBossOptions, setRaidBossOptions] = useState<{
-    raidTiers: string[];
-    types: string[];
-  }>({ raidTiers: [], types: [] });
-
-  const [researchTaskOptions, setResearchTaskOptions] = useState<{
-    categories: string[];
-    rewardTypes: string[];
-  }>({ categories: [], rewardTypes: [] });
-
-  const [rocketLineupOptions, setRocketLineupOptions] = useState<{
-    leaders: string[];
-  }>({ leaders: [] });
-
   const {
     lastUpdated,
     loading: lastUpdatedLoading,
     error,
     refetch: refetchLastUpdated,
   } = useLastUpdated();
-
-  const activeFilterCount = useMemo(() => {
-    return (
-      (filters.searchTerm ? 1 : 0) +
-      filters.selectedCategories.length +
-      (filters.startDate ? 1 : 0) +
-      (filters.endDate ? 1 : 0) +
-      (filters.showActiveOnly ? 1 : 0) +
-      (filters.timeRange[0] > 0 || filters.timeRange[1] < 24 ? 1 : 0) +
-      filters.pokemonSearch.length +
-      filters.bonusSearch.length
-    );
-  }, [filters]);
 
   const handleSettingsChange = useCallback(
     (newSettings: Partial<Settings>) => {
@@ -182,104 +131,34 @@ function App() {
       <Header
         onSettingsClick={() => openDialog('settings')}
         onRefresh={handleRefresh}
-        filters={filters}
-        onFilterChange={setFilters}
-        onResetFilters={handleResetFilters}
         onNewEventClick={() => openDialog('create')}
         onOpenExportDialog={() => openDialog('export')}
-        allCategories={allCategories}
-        allPokemon={allPokemon}
-        allBonuses={allBonuses}
         lastUpdated={lastUpdated}
         lastUpdatedLoading={lastUpdatedLoading}
         lastUpdatedError={error}
-        activeFilterCount={activeFilterCount}
         isMobile={isMobile}
-        // Page-specific filters
-        eggPoolFilters={eggPoolFilterState.filters}
-        onEggPoolFilterChange={eggPoolFilterState.setFilters}
-        onResetEggPoolFilters={eggPoolFilterState.resetFilters}
-        eggPoolActiveFilterCount={eggPoolFilterState.activeFilterCount}
-        eggPoolOptions={eggPoolOptions}
-        raidBossFilters={raidBossFilterState.filters}
-        onRaidBossFilterChange={raidBossFilterState.setFilters}
-        onResetRaidBossFilters={raidBossFilterState.resetFilters}
-        raidBossActiveFilterCount={raidBossFilterState.activeFilterCount}
-        raidBossOptions={raidBossOptions}
-        researchTaskFilters={researchTaskFilterState.filters}
-        onResearchTaskFilterChange={researchTaskFilterState.setFilters}
-        onResetResearchTaskFilters={researchTaskFilterState.resetFilters}
-        researchTaskActiveFilterCount={researchTaskFilterState.activeFilterCount}
-        researchTaskOptions={researchTaskOptions}
-        rocketLineupFilters={rocketLineupFilterState.filters}
-        onRocketLineupFilterChange={rocketLineupFilterState.setFilters}
-        onResetRocketLineupFilters={rocketLineupFilterState.resetFilters}
-        rocketLineupActiveFilterCount={rocketLineupFilterState.activeFilterCount}
-        rocketLineupOptions={rocketLineupOptions}
       />
       <main className="flex-1 px-3 py-4 sm:px-4 sm:py-5 md:px-6 md:py-6">
         <ErrorBoundary>
           <Suspense fallback={<PageLoader />}>
             <Routes>
-              <Route
-                path={ROUTES.CALENDAR}
-                element={
-                  <div className="w-full">
+              <Route element={<PageLayout />}>
+                <Route
+                  path={ROUTES.CALENDAR}
+                  element={
                     <CalendarPage
-                      isLoading={eventsLoading}
                       onEditEvent={handleOpenEditDialog}
                       onDeleteEvent={handleDeleteEvent}
                       showToast={showToast}
-                      isMobile={isMobile}
                     />
-                  </div>
-                }
-              />
-              <Route
-                path={ROUTES.EGG_POOL}
-                element={
-                  <div className="mx-auto max-w-7xl">
-                    <EggPoolPage
-                      filters={eggPoolFilterState.filters}
-                      onSetFilterOptions={setEggPoolOptions}
-                    />
-                  </div>
-                }
-              />
-              <Route
-                path={ROUTES.RAID_BOSSES}
-                element={
-                  <div className="mx-auto max-w-7xl">
-                    <RaidBossesPage
-                      filters={raidBossFilterState.filters}
-                      onSetFilterOptions={setRaidBossOptions}
-                    />
-                  </div>
-                }
-              />
-              <Route
-                path={ROUTES.RESEARCH_TASKS}
-                element={
-                  <div className="mx-auto max-w-7xl">
-                    <ResearchTasksPage
-                      filters={researchTaskFilterState.filters}
-                      onSetFilterOptions={setResearchTaskOptions}
-                    />
-                  </div>
-                }
-              />
-              <Route
-                path={ROUTES.ROCKET_LINEUP}
-                element={
-                  <div className="mx-auto max-w-7xl">
-                    <RocketLineupPage
-                      filters={rocketLineupFilterState.filters}
-                      onSetFilterOptions={setRocketLineupOptions}
-                    />
-                  </div>
-                }
-              />
-              <Route path={ROUTES.FAQ} element={<FaqPage />} />
+                  }
+                />
+                <Route path={ROUTES.EGG_POOL} element={<EggPoolPage />} />
+                <Route path={ROUTES.RAID_BOSSES} element={<RaidBossesPage />} />
+                <Route path={ROUTES.RESEARCH_TASKS} element={<ResearchTasksPage />} />
+                <Route path={ROUTES.ROCKET_LINEUP} element={<RocketLineupPage />} />
+                <Route path={ROUTES.FAQ} element={<FaqPage />} />
+              </Route>
               <Route path="*" element={<Navigate to={ROUTES.CALENDAR} replace />} />
             </Routes>
           </Suspense>

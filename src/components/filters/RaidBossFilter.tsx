@@ -1,4 +1,5 @@
 import { useCallback } from 'react';
+import { usePageFiltersContext } from '../../hooks/usePageFiltersContext';
 import type { RaidBossFilters } from '../../types/pageFilters';
 import { Button } from '../ui/button';
 import { Checkbox } from '../ui/checkbox';
@@ -8,16 +9,13 @@ import { Separator } from '../ui/separator';
 import { Slider } from '../ui/slider';
 import { FilterActions, FilterSection } from './shared';
 
-interface RaidBossFilterProps {
-  filters: RaidBossFilters;
-  onFilterChange: (newFilters: RaidBossFilters) => void;
-  onResetFilters: () => void;
-  availableRaidTiers: string[];
-  availableTypes: string[];
-}
-
-function RaidBossFilter(props: RaidBossFilterProps) {
-  const { filters, onFilterChange, onResetFilters, availableRaidTiers, availableTypes } = props;
+function RaidBossFilter() {
+  const {
+    filters,
+    setFilters: onFilterChange,
+    resetFilters: onResetFilters,
+    options: { raidTiers: availableRaidTiers, types: availableTypes },
+  } = usePageFiltersContext().raidBoss;
 
   const handleFilterChange = useCallback(
     <K extends keyof RaidBossFilters>(field: K, value: RaidBossFilters[K]) => {

@@ -179,7 +179,7 @@ const faqData: FaqDataItem[] = [
 
 function FaqPage() {
   return (
-    <div className="mx-auto max-w-3xl py-4">
+    <div className="mx-auto max-w-3xl">
       <PageHeader
         title="Frequently Asked Questions"
         description="Here are answers to some common questions about the PoGo Event Calendar."

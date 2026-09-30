@@ -12,23 +12,17 @@ import { Alert } from '../components/ui/alert';
 import { Badge } from '../components/ui/badge';
 import { Card, INTERACTIVE_CARD_CLASSNAME } from '../components/ui/card';
 import { Popover, PopoverContent, PopoverTrigger } from '../components/ui/popover';
-import { MOBILE_QUERY, useMediaQuery } from '../hooks/useMediaQuery';
+import { usePageFiltersContext } from '../hooks/usePageFiltersContext';
 import { usePageData } from '../hooks/usePageData';
 import { fetchResearchTasks } from '../services/dataService';
-import type { ResearchTaskFilters } from '../types/pageFilters';
 import type { ResearchTask, ResearchTaskData, TaskReward } from '../types/researchTasks';
 
-interface ResearchTasksPageProps {
-  filters: ResearchTaskFilters;
-  onSetFilterOptions: (options: { categories: string[]; rewardTypes: string[] }) => void;
-}
-
-function ResearchTasksPage({ filters, onSetFilterOptions }: ResearchTasksPageProps) {
+function ResearchTasksPage() {
+  const { filters, setOptions } = usePageFiltersContext().researchTask;
   const { data, loading, error, refetch } = usePageData<ResearchTaskData>(
     fetchResearchTasks,
     'Failed to load research task data. Please try again later.'
   );
-  const isMobile = useMediaQuery(MOBILE_QUERY);
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
 
   useEffect(() => {
@@ -41,9 +35,9 @@ function ResearchTasksPage({ filters, onSetFilterOptions }: ResearchTasksPagePro
           )
         )
       ).sort();
-      onSetFilterOptions({ categories, rewardTypes });
+      setOptions({ categories, rewardTypes });
     }
-  }, [data, onSetFilterOptions]);
+  }, [data, setOptions]);
 
   const filteredData = useMemo(() => {
     if (!data) return null;
@@ -191,7 +185,7 @@ function ResearchTasksPage({ filters, onSetFilterOptions }: ResearchTasksPagePro
   );
 
   return (
-    <div className={`py-4 ${isMobile ? 'pb-16' : ''}`}>
+    <div>
       <PageHeader
         title="Research Tasks"
         description="Current field research tasks and their rewards"

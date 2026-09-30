@@ -13,17 +13,12 @@ import {
   Zap,
   type LucideIcon,
 } from 'lucide-react';
-import React, { useState } from 'react';
+import React, { useState, type ReactNode } from 'react';
 import { Link as RouterLink, useLocation } from 'react-router-dom';
-import type { EventFilterProps } from '../../types/filters';
-import type {
-  EggPoolFilters,
-  RaidBossFilters,
-  ResearchTaskFilters,
-  RocketLineupFilters,
-} from '../../types/pageFilters';
 import { ROUTES } from '../../config/routes';
 import { cn } from '../../lib/utils';
+import { useCalendarContext } from '../../hooks/useCalendarContext';
+import { usePageFiltersContext } from '../../hooks/usePageFiltersContext';
 import { useScrollTrigger } from '../../hooks/useScrollTrigger';
 import EggPoolFilter from '../filters/EggPoolFilter';
 import EventFilter from '../filters/EventFilter';
@@ -50,154 +45,62 @@ const NAV_ITEMS: { label: string; path: string; icon: LucideIcon }[] = [
   { label: 'FAQ', path: ROUTES.FAQ, icon: HelpCircle },
 ];
 
-type HeaderProps = Omit<EventFilterProps, 'isMobile'> & {
+interface HeaderProps {
   onSettingsClick: () => void;
   onRefresh: () => void;
+  onNewEventClick: () => void;
+  onOpenExportDialog: () => void;
   lastUpdated: string | null;
   lastUpdatedLoading: boolean;
   lastUpdatedError: string | null;
-  activeFilterCount: number;
   isMobile: boolean;
-  eggPoolFilters?: EggPoolFilters;
-  onEggPoolFilterChange?: (filters: EggPoolFilters) => void;
-  onResetEggPoolFilters?: () => void;
-  eggPoolActiveFilterCount?: number;
-  eggPoolOptions?: { eggTiers: string[]; rarityTiers: string[] };
-  raidBossFilters?: RaidBossFilters;
-  onRaidBossFilterChange?: (filters: RaidBossFilters) => void;
-  onResetRaidBossFilters?: () => void;
-  raidBossActiveFilterCount?: number;
-  raidBossOptions?: { raidTiers: string[]; types: string[] };
-  researchTaskFilters?: ResearchTaskFilters;
-  onResearchTaskFilterChange?: (filters: ResearchTaskFilters) => void;
-  onResetResearchTaskFilters?: () => void;
-  researchTaskActiveFilterCount?: number;
-  researchTaskOptions?: { categories: string[]; rewardTypes: string[] };
-  rocketLineupFilters?: RocketLineupFilters;
-  onRocketLineupFilterChange?: (filters: RocketLineupFilters) => void;
-  onResetRocketLineupFilters?: () => void;
-  rocketLineupActiveFilterCount?: number;
-  rocketLineupOptions?: { leaders: string[] };
-};
+}
 
-function HeaderComponent(props: HeaderProps) {
-  const {
-    onSettingsClick,
-    onRefresh,
-    lastUpdated,
-    lastUpdatedLoading,
-    lastUpdatedError,
-    isMobile,
-    activeFilterCount,
-    eggPoolFilters,
-    eggPoolActiveFilterCount,
-    raidBossFilters,
-    raidBossActiveFilterCount,
-    researchTaskFilters,
-    researchTaskActiveFilterCount,
-    rocketLineupFilters,
-    rocketLineupActiveFilterCount,
-    ...filterProps
-  } = props;
+interface FilterPanel {
+  content: ReactNode;
+  activeFilterCount: number;
+}
 
+function HeaderComponent({
+  onSettingsClick,
+  onRefresh,
+  onNewEventClick,
+  onOpenExportDialog,
+  lastUpdated,
+  lastUpdatedLoading,
+  lastUpdatedError,
+  isMobile,
+}: HeaderProps) {
   const trigger = useScrollTrigger(0);
   const location = useLocation();
   const [filterSheetOpen, setFilterSheetOpen] = useState(false);
+  const { activeFilterCount } = useCalendarContext();
+  const pageFilters = usePageFiltersContext();
 
-  const handleFilterOpenChange = (open: boolean) => {
-    setFilterSheetOpen(open);
+  const filterPanels: Partial<Record<string, FilterPanel>> = {
+    [ROUTES.CALENDAR]: {
+      content: <EventFilter onNewEventClick={onNewEventClick} onOpenExportDialog={onOpenExportDialog} />,
+      activeFilterCount,
+    },
+    [ROUTES.EGG_POOL]: { content: <EggPoolFilter />, activeFilterCount: pageFilters.eggPool.activeFilterCount },
+    [ROUTES.RAID_BOSSES]: { content: <RaidBossFilter />, activeFilterCount: pageFilters.raidBoss.activeFilterCount },
+    [ROUTES.RESEARCH_TASKS]: {
+      content: <ResearchTaskFilter />,
+      activeFilterCount: pageFilters.researchTask.activeFilterCount,
+    },
+    [ROUTES.ROCKET_LINEUP]: {
+      content: <RocketLineupFilter />,
+      activeFilterCount: pageFilters.rocketLineup.activeFilterCount,
+    },
   };
-
-  const getFilterContent = () => {
-    switch (location.pathname) {
-      case ROUTES.CALENDAR:
-        return <EventFilter {...filterProps} />;
-      case ROUTES.EGG_POOL:
-        return (
-          props.onEggPoolFilterChange &&
-          props.onResetEggPoolFilters &&
-          eggPoolFilters && (
-            <EggPoolFilter
-              filters={eggPoolFilters}
-              onFilterChange={props.onEggPoolFilterChange}
-              onResetFilters={props.onResetEggPoolFilters}
-              availableEggTiers={props.eggPoolOptions?.eggTiers || []}
-              availableRarityTiers={props.eggPoolOptions?.rarityTiers || []}
-            />
-          )
-        );
-      case ROUTES.RAID_BOSSES:
-        return (
-          props.onRaidBossFilterChange &&
-          props.onResetRaidBossFilters &&
-          raidBossFilters && (
-            <RaidBossFilter
-              filters={raidBossFilters}
-              onFilterChange={props.onRaidBossFilterChange}
-              onResetFilters={props.onResetRaidBossFilters}
-              availableRaidTiers={props.raidBossOptions?.raidTiers || []}
-              availableTypes={props.raidBossOptions?.types || []}
-            />
-          )
-        );
-      case ROUTES.RESEARCH_TASKS:
-        return (
-          props.onResearchTaskFilterChange &&
-          props.onResetResearchTaskFilters &&
-          researchTaskFilters && (
-            <ResearchTaskFilter
-              filters={researchTaskFilters}
-              onFilterChange={props.onResearchTaskFilterChange}
-              onResetFilters={props.onResetResearchTaskFilters}
-              availableCategories={props.researchTaskOptions?.categories || []}
-              availableRewardTypes={props.researchTaskOptions?.rewardTypes || []}
-            />
-          )
-        );
-      case ROUTES.ROCKET_LINEUP:
-        return (
-          props.onRocketLineupFilterChange &&
-          props.onResetRocketLineupFilters &&
-          rocketLineupFilters && (
-            <RocketLineupFilter
-              filters={rocketLineupFilters}
-              onFilterChange={props.onRocketLineupFilterChange}
-              onResetFilters={props.onResetRocketLineupFilters}
-              availableLeaders={props.rocketLineupOptions?.leaders || []}
-            />
-          )
-        );
-      default:
-        return null;
-    }
-  };
-
-  const filterContent = getFilterContent();
-
-  const getCurrentActiveFilterCount = () => {
-    switch (location.pathname) {
-      case ROUTES.CALENDAR:
-        return activeFilterCount;
-      case ROUTES.EGG_POOL:
-        return eggPoolActiveFilterCount || 0;
-      case ROUTES.RAID_BOSSES:
-        return raidBossActiveFilterCount || 0;
-      case ROUTES.RESEARCH_TASKS:
-        return researchTaskActiveFilterCount || 0;
-      case ROUTES.ROCKET_LINEUP:
-        return rocketLineupActiveFilterCount || 0;
-      default:
-        return 0;
-    }
-  };
-
-  const filterCount = getCurrentActiveFilterCount();
+  const filterPanel = filterPanels[location.pathname];
+  const filterCount = filterPanel?.activeFilterCount ?? 0;
   const currentNavLabel = NAV_ITEMS.find((item) => item.path === location.pathname)?.label || 'Calendar';
 
   const filterTriggerButton = (
     <div className="relative">
       <IconButton
-        onClick={() => handleFilterOpenChange(true)}
+        onClick={() => setFilterSheetOpen(true)}
         aria-label="Search & filters"
         title="Search & filters"
       >
@@ -250,20 +153,18 @@ function HeaderComponent(props: HeaderProps) {
         <div className="flex-1" />
 
         <div className="flex shrink-0 items-center gap-1">
-          {!isMobile && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onRefresh}
-              className="hidden text-muted-foreground md:inline-flex"
-              title={lastUpdatedError ? lastUpdatedError : lastUpdatedLoading ? 'Refreshing…' : 'Refresh data'}
-            >
-              <RefreshCw className={cn(lastUpdatedLoading && 'animate-spin')} />
-              <span className="hidden lg:inline">
-                {lastUpdatedError ? 'Update failed' : lastUpdatedLoading ? 'Updating…' : `Updated ${lastUpdated}`}
-              </span>
-            </Button>
-          )}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onRefresh}
+            className="hidden text-muted-foreground md:inline-flex"
+            title={lastUpdatedError ? lastUpdatedError : lastUpdatedLoading ? 'Refreshing…' : 'Refresh data'}
+          >
+            <RefreshCw className={cn(lastUpdatedLoading && 'animate-spin')} />
+            <span className="hidden lg:inline">
+              {lastUpdatedError ? 'Update failed' : lastUpdatedLoading ? 'Updating…' : `Updated ${lastUpdated}`}
+            </span>
+          </Button>
 
           <div className="mx-1 hidden h-6 w-px bg-border md:block" />
 
@@ -295,7 +196,7 @@ function HeaderComponent(props: HeaderProps) {
             </DropdownMenuContent>
           </DropdownMenu>
 
-          {filterContent &&
+          {filterPanel && (
             <Sheet open={filterSheetOpen} onOpenChange={setFilterSheetOpen}>
               <SheetTrigger asChild>{filterTriggerButton}</SheetTrigger>
               <SheetContent side="right" className="max-w-md">
@@ -309,9 +210,10 @@ function HeaderComponent(props: HeaderProps) {
                     <X className="h-4 w-4" />
                   </IconButton>
                 </SheetHeader>
-                <SheetBody>{filterContent}</SheetBody>
+                <SheetBody>{filterPanel.content}</SheetBody>
               </SheetContent>
-            </Sheet>}
+            </Sheet>
+          )}
 
           <IconButton onClick={onSettingsClick} aria-label="Settings" title="Settings">
             <Sliders />

@@ -73,13 +73,13 @@ function EventHoverDetails({ open, mousePosition, event }: EventHoverDetailsProp
       role="tooltip"
       aria-hidden="true"
       className={cn(
-        'pointer-events-none fixed z-50 w-[340px] max-w-[90vw] overflow-hidden rounded-xl border border-border bg-popover/95 text-popover-foreground shadow-soft-2xl backdrop-blur-md transition-opacity duration-100',
+        'pointer-events-none fixed z-50 w-[340px] max-w-[90vw] overflow-hidden rounded-lg border border-border bg-popover/95 text-popover-foreground shadow-soft-xl backdrop-blur-md transition-opacity duration-100',
         open ? 'opacity-100' : 'opacity-0'
       )}
       style={{ top, left }}
     >
       <div className="border-b border-border p-4 pb-3.5">
-        <h3 className="mb-2 text-[1.05rem] font-bold leading-snug">{event.title}</h3>
+        <h3 className="mb-2 text-base font-bold leading-snug">{event.title}</h3>
         <div className="flex flex-wrap items-center gap-1.5">
           <CategoryTag category={event.extendedProps.category} />
           <EventStatusTag
@@ -94,7 +94,7 @@ function EventHoverDetails({ open, mousePosition, event }: EventHoverDetailsProp
           <div className="flex items-start gap-2.5">
             <CalendarDays className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
             <div className="min-w-0 flex-1">
-              <p className="text-[0.7rem] font-semibold uppercase tracking-wide text-muted-foreground">
+              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                 Start Time
               </p>
               <p className="mt-0.5 text-sm font-medium">{formattedStart}</p>
@@ -106,7 +106,7 @@ function EventHoverDetails({ open, mousePosition, event }: EventHoverDetailsProp
           <div className="flex items-start gap-2.5">
             <Clock className="mt-0.5 h-5 w-5 shrink-0 text-secondary" />
             <div className="min-w-0 flex-1">
-              <p className="text-[0.7rem] font-semibold uppercase tracking-wide text-muted-foreground">
+              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                 End Time
               </p>
               <p className="mt-0.5 text-sm font-medium">{formattedEnd}</p>

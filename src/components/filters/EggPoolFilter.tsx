@@ -1,4 +1,5 @@
 import { useCallback } from 'react';
+import { usePageFiltersContext } from '../../hooks/usePageFiltersContext';
 import type { EggPoolFilters } from '../../types/pageFilters';
 import { Button } from '../ui/button';
 import { Checkbox } from '../ui/checkbox';
@@ -7,17 +8,13 @@ import { Label } from '../ui/label';
 import { Separator } from '../ui/separator';
 import { FilterActions, FilterSection } from './shared';
 
-interface EggPoolFilterProps {
-  filters: EggPoolFilters;
-  onFilterChange: (newFilters: EggPoolFilters) => void;
-  onResetFilters: () => void;
-  availableEggTiers: string[];
-  availableRarityTiers: string[];
-}
-
-function EggPoolFilter(props: EggPoolFilterProps) {
-  const { filters, onFilterChange, onResetFilters, availableEggTiers, availableRarityTiers } =
-    props;
+function EggPoolFilter() {
+  const {
+    filters,
+    setFilters: onFilterChange,
+    resetFilters: onResetFilters,
+    options: { eggTiers: availableEggTiers, rarityTiers: availableRarityTiers },
+  } = usePageFiltersContext().eggPool;
 
   const handleFilterChange = useCallback(
     <K extends keyof EggPoolFilters>(field: K, value: EggPoolFilters[K]) => {

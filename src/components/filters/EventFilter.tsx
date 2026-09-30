@@ -2,7 +2,8 @@ import { Download, Plus, RotateCcw, Star } from 'lucide-react';
 import React, { useCallback, useMemo } from 'react';
 import { SAVED_EVENTS_CATEGORY } from '../../config/constants';
 import { categoryGroups, marks } from '../../config/eventFilter';
-import type { EventFilterProps, Filters } from '../../types/filters';
+import { useCalendarContext } from '../../hooks/useCalendarContext';
+import type { Filters } from '../../types/filters';
 import { formatHour } from '../../utils/dateUtils';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../ui/accordion';
 import { Button } from '../ui/button';
@@ -51,9 +52,20 @@ const CategoryCheckbox = React.memo(
 );
 CategoryCheckbox.displayName = 'CategoryCheckbox';
 
-function EventFilter(props: EventFilterProps) {
-  const { filters, onFilterChange, allCategories, onNewEventClick, onResetFilters, onOpenExportDialog } =
-    props;
+interface EventFilterProps {
+  onNewEventClick: () => void;
+  onOpenExportDialog: () => void;
+}
+
+function EventFilter({ onNewEventClick, onOpenExportDialog }: EventFilterProps) {
+  const {
+    filters,
+    setFilters: onFilterChange,
+    handleResetFilters: onResetFilters,
+    allCategories,
+    allPokemon,
+    allBonuses,
+  } = useCalendarContext();
 
   const handleFilterChange = useCallback(
     <K extends keyof Filters>(field: K, value: Filters[K]) => {
@@ -202,8 +214,8 @@ function EventFilter(props: EventFilterProps) {
             <AdvancedFilter
               filters={filters}
               handleFilterChange={handleFilterChange}
-              allPokemon={props.allPokemon}
-              allBonuses={props.allBonuses}
+              allPokemon={allPokemon}
+              allBonuses={allBonuses}
             />
           </AccordionContent>
         </AccordionItem>

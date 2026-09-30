@@ -46,7 +46,7 @@ export function RotatingPokemonSprite({ eventId, rotate, sprites }: RotatingPoke
   const activeIndex = rotationIndex % availableSprites.length;
 
   return (
-    <span className="relative z-10 h-5 w-5 shrink-0" aria-hidden="true">
+    <span className="relative size-6 shrink-0" aria-hidden="true">
       {availableSprites.map((sprite, index) => (
         <img
           key={sprite.asset_url}
@@ -54,7 +54,7 @@ export function RotatingPokemonSprite({ eventId, rotate, sprites }: RotatingPoke
           alt=""
           draggable={false}
           className={cn(
-            'pointer-events-none absolute bottom-0 left-1/2 h-9 w-9 max-w-none -translate-x-1/2 origin-bottom object-contain transition-[opacity,transform] duration-300 ease-in-out',
+            'pointer-events-none absolute inset-0 size-6 object-contain transition-[opacity,transform] duration-300 ease-in-out',
             index === activeIndex ? 'scale-100 opacity-100' : 'scale-90 opacity-0'
           )}
           onError={() => {

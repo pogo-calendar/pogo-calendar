@@ -207,11 +207,27 @@ export function useFilters(
     );
   }, [allEvents, filtersForCurrentView, savedEventIds]);
 
+  const activeFilterCount = useMemo(() => {
+    const { searchTerm, selectedCategories, startDate, endDate, showActiveOnly, timeRange, pokemonSearch, bonusSearch } =
+      filtersForCurrentView;
+    return (
+      (searchTerm ? 1 : 0) +
+      selectedCategories.length +
+      (startDate ? 1 : 0) +
+      (endDate ? 1 : 0) +
+      (showActiveOnly ? 1 : 0) +
+      (timeRange[0] > 0 || timeRange[1] < 24 ? 1 : 0) +
+      pokemonSearch.length +
+      bonusSearch.length
+    );
+  }, [filtersForCurrentView]);
+
   return {
     filters: filtersForCurrentView,
     setFilters: setFiltersForCurrentView,
     handleResetFilters,
     setCurrentView,
     filteredEvents,
+    activeFilterCount,
   };
 }

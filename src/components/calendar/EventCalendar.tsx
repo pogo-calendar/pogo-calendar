@@ -1,66 +1,53 @@
-import type { DateSelectArg, EventClickArg, EventContentArg, FormatterInput } from '@fullcalendar/core';
+import type {
+  DateSelectArg,
+  DatesSetArg,
+  EventClickArg,
+  EventContentArg,
+  FormatterInput,
+} from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import listPlugin from '@fullcalendar/list';
 import FullCalendar from '@fullcalendar/react';
-import { CalendarX } from 'lucide-react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { useCalendarContext } from '../../hooks/useCalendarContext';
+import { HOVER_QUERY, useMediaQuery } from '../../hooks/useMediaQuery';
 import { useSettingsContext } from '../../hooks/useSettingsContext';
 import type { ToastSeverity } from '../../hooks/useToast';
 import type { CalendarEvent } from '../../types/events';
-import { Button } from '../ui/button';
+import type { CalendarView } from '../../types/settings';
 import { Card } from '../ui/card';
 import EventDetailDialog from '../events/EventDetailDialog';
 import EventHoverDetails from '../events/EventHoverDetails';
-import { NoResults } from '../shared/NoResults';
 import { CalendarEventContent } from './CalendarEventContent';
+import { CalendarToolbar } from './CalendarToolbar';
 
 interface EventCalendarProps {
-  events: CalendarEvent[];
+  view: CalendarView;
   isMobile: boolean;
-  savedEventIds: string[];
-  filterStartDate: Date | null;
-  filterEndDate: Date | null;
-  selectedEvent: CalendarEvent | null;
-  onSelectEvent: (event: CalendarEvent | null) => void;
-  onToggleSaveEvent: (eventId: string) => void;
-  onViewChange: (viewName: string) => void;
-  onDeleteEvent: (eventId: string) => void;
-  onUpdateNote: (eventId: string, noteText: string) => void;
-  eventNotes: Record<string, string>;
   onEditEvent: (event: CalendarEvent) => void;
-  onDateSelect: (selection: { start: Date | null; end: Date | null }) => void;
+  onDeleteEvent: (eventId: string) => void;
   showToast: (message: string, severity?: ToastSeverity) => void;
-  onResetFilters: () => void;
 }
 
-function EventCalendar({
-  events,
-  isMobile,
-  savedEventIds,
-  filterStartDate,
-  filterEndDate,
-  selectedEvent,
-  onSelectEvent,
-  onToggleSaveEvent,
-  onViewChange,
-  onDeleteEvent,
-  onUpdateNote,
-  eventNotes,
-  onEditEvent,
-  onDateSelect,
-  showToast,
-  onResetFilters,
-}: EventCalendarProps) {
+function EventCalendar({ view, isMobile, onEditEvent, onDeleteEvent, showToast }: EventCalendarProps) {
+  const {
+    filteredEvents: events,
+    savedEventIds,
+    eventNotes,
+    selectedEvent,
+    setSelectedEvent: onSelectEvent,
+    handleToggleSaveEvent: onToggleSaveEvent,
+    updateNote: onUpdateNote,
+    setCurrentView: onViewChange,
+    filters: { startDate: filterStartDate, endDate: filterEndDate },
+    setFilters,
+  } = useCalendarContext();
   const calendarRef = useRef<FullCalendar>(null);
   const { settings } = useSettingsContext();
-  const { defaultCalendarView, firstDay, hour12, timezone } = settings;
-  const resolvedDefaultView =
-    defaultCalendarView === 'auto'
-      ? isMobile
-        ? 'listWeek'
-        : 'dayGridMonth'
-      : defaultCalendarView;
+  const { firstDay, hour12, timezone } = settings;
+  const canHover = useMediaQuery(HOVER_QUERY);
+  const [title, setTitle] = useState('');
 
   const [popoverState, setPopoverState] = useState<{
     event: CalendarEvent | null;
@@ -69,10 +56,10 @@ function EventCalendar({
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      calendarRef.current?.getApi().changeView(resolvedDefaultView);
+      calendarRef.current?.getApi().changeView(view);
     }, 0);
     return () => clearTimeout(timer);
-  }, [resolvedDefaultView]);
+  }, [view]);
 
   const eventTimeFormat: FormatterInput = {
     hour: isMobile ? 'numeric' : hour12 ? 'numeric' : '2-digit',
@@ -95,9 +82,24 @@ function EventCalendar({
     [findOriginalEvent, onSelectEvent]
   );
 
+  const handleDatesSet = useCallback(
+    (dateInfo: DatesSetArg) => {
+      setTitle(dateInfo.view.title);
+      onViewChange(dateInfo.view.type);
+    },
+    [onViewChange]
+  );
+
   const handleCloseDialog = useCallback(() => {
     onSelectEvent(null);
   }, [onSelectEvent]);
+
+  const setDateRange = useCallback(
+    (startDate: Date | null, endDate: Date | null) => {
+      setFilters((prev) => ({ ...prev, startDate, endDate }));
+    },
+    [setFilters]
+  );
 
   const handleDateSelect = useCallback(
     (selectionInfo: DateSelectArg) => {
@@ -110,14 +112,14 @@ function EventCalendar({
         start.toDateString() === filterStartDate.toDateString() &&
         inclusiveEnd.toDateString() === filterEndDate.toDateString()
       ) {
-        onDateSelect({ start: null, end: null });
+        setDateRange(null, null);
         calendarRef.current?.getApi().unselect();
         return;
       }
 
-      onDateSelect({ start, end: inclusiveEnd });
+      setDateRange(start, inclusiveEnd);
     },
-    [filterStartDate, filterEndDate, onDateSelect]
+    [filterStartDate, filterEndDate, setDateRange]
   );
 
   const getEventClassSelector = (url: string) => {
@@ -126,6 +128,10 @@ function EventCalendar({
 
   const handlePopoverOpen = useCallback(
     (event: React.MouseEvent<HTMLElement>, calendarEvent: CalendarEvent) => {
+      // Touch devices emulate mouseenter on tap, which would leave the preview
+      // stuck open behind the detail dialog.
+      if (!canHover) return;
+
       const originalEvent = findOriginalEvent(calendarEvent);
 
       // Highlighting Logic
@@ -138,7 +144,7 @@ function EventCalendar({
         position: { top: event.clientY, left: event.clientX },
       });
     },
-    [findOriginalEvent]
+    [canHover, findOriginalEvent]
   );
 
   const handlePopoverClose = useCallback(() => {
@@ -179,35 +185,22 @@ function EventCalendar({
     [savedEventIds, onToggleSaveEvent, handlePopoverOpen, handlePopoverClose]
   );
 
-  if (events.length === 0) {
-    return (
-      <NoResults
-        title="No Events Found"
-        message="Try adjusting your filters or creating a new custom event."
-        icon={<CalendarX className="mb-3 h-10 w-10 text-muted-foreground" />}
-        action={
-          <Button variant="outline" onClick={onResetFilters}>
-            Reset All Filters
-          </Button>
-        }
-      />
-    );
-  }
-
   return (
     <>
-      <Card className="p-2 shadow-soft-lg md:p-4" onMouseMove={handleMouseMove}>
+      <Card className="p-3 md:p-4" onMouseMove={handleMouseMove}>
+        <CalendarToolbar
+          title={title}
+          onPrev={() => calendarRef.current?.getApi().prev()}
+          onNext={() => calendarRef.current?.getApi().next()}
+          onToday={() => calendarRef.current?.getApi().today()}
+        />
         <div className="calendar-scroll-shell">
           <FullCalendar
             key={timezone}
             ref={calendarRef}
             plugins={[dayGridPlugin, listPlugin, interactionPlugin]}
-            headerToolbar={{
-              left: 'prev,next today',
-              center: 'title',
-              right: 'dayGridMonth,listWeek',
-            }}
-            initialView={resolvedDefaultView}
+            headerToolbar={false}
+            initialView={view}
             events={events}
             eventClick={handleEventClick}
             eventContent={renderEventContent}
@@ -218,8 +211,11 @@ function EventCalendar({
             expandRows={false}
             eventBackgroundColor="transparent"
             eventBorderColor="transparent"
-            datesSet={(dateInfo) => onViewChange(dateInfo.view.type)}
-            titleFormat={isMobile ? { month: 'short', year: 'numeric' } : { month: 'long', year: 'numeric' }}
+            datesSet={handleDatesSet}
+            views={{
+              dayGridMonth: { titleFormat: { month: isMobile ? 'short' : 'long', year: 'numeric' } },
+              listWeek: { titleFormat: { month: 'short', day: 'numeric', year: 'numeric' } },
+            }}
             firstDay={firstDay}
             selectable={true}
             select={handleDateSelect}

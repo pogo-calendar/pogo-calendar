@@ -36,18 +36,21 @@ export interface RocketLineupFilters {
   shinyOnly: boolean;
 }
 
-// Union type for all page filters
-export type PageFilters =
-  | EggPoolFilters
-  | RaidBossFilters
-  | ResearchTaskFilters
-  | RocketLineupFilters;
+export interface EggPoolFilterOptions {
+  eggTiers: string[];
+  rarityTiers: string[];
+}
 
-// Page identifier
-export type PageType =
-  | 'calendar'
-  | 'egg-pool'
-  | 'raid-bosses'
-  | 'research-tasks'
-  | 'rocket-lineup'
-  | 'faq';
+export interface RaidBossFilterOptions {
+  raidTiers: string[];
+  types: string[];
+}
+
+export interface ResearchTaskFilterOptions {
+  categories: string[];
+  rewardTypes: string[];
+}
+
+export interface RocketLineupFilterOptions {
+  leaders: string[];
+}

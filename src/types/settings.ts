@@ -1,6 +1,7 @@
 export type ThemeMode = 'light' | 'dark';
 export type ThemeSetting = ThemeMode | 'auto';
-export type CalendarViewSetting = 'auto' | 'dayGridMonth' | 'listWeek';
+export type CalendarView = 'dayGridMonth' | 'listWeek';
+export type CalendarViewSetting = 'auto' | CalendarView;
 
 export interface Settings {
   theme: ThemeSetting;

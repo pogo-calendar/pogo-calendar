@@ -11,24 +11,18 @@ import { Alert } from '../components/ui/alert';
 import { Badge } from '../components/ui/badge';
 import { Card, INTERACTIVE_CARD_CLASSNAME } from '../components/ui/card';
 import { POKEMON_TYPE_COLORS, RAID_TIER_COLORS } from '../config/colorMapping';
-import { MOBILE_QUERY, useMediaQuery } from '../hooks/useMediaQuery';
+import { usePageFiltersContext } from '../hooks/usePageFiltersContext';
 import { usePageData } from '../hooks/usePageData';
 import { fetchRaidBosses } from '../services/dataService';
-import type { RaidBossFilters } from '../types/pageFilters';
 import type { RaidBoss, RaidBossData } from '../types/raidBosses';
 import { contrastColor } from '../utils/colorUtils';
 
-interface RaidBossesPageProps {
-  filters: RaidBossFilters;
-  onSetFilterOptions: (options: { raidTiers: string[]; types: string[] }) => void;
-}
-
-function RaidBossesPage({ filters, onSetFilterOptions }: RaidBossesPageProps) {
+function RaidBossesPage() {
+  const { filters, setOptions } = usePageFiltersContext().raidBoss;
   const { data, loading, error, refetch } = usePageData<RaidBossData>(
     fetchRaidBosses,
     'Failed to load raid boss data. Please try again later.'
   );
-  const isMobile = useMediaQuery(MOBILE_QUERY);
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
 
   useEffect(() => {
@@ -41,9 +35,9 @@ function RaidBossesPage({ filters, onSetFilterOptions }: RaidBossesPageProps) {
         });
       });
       const types = Array.from(typesSet).sort();
-      onSetFilterOptions({ raidTiers, types });
+      setOptions({ raidTiers, types });
     }
-  }, [data, onSetFilterOptions]);
+  }, [data, setOptions]);
 
   const filteredData = useMemo(() => {
     if (!data) return null;
@@ -179,7 +173,7 @@ function RaidBossesPage({ filters, onSetFilterOptions }: RaidBossesPageProps) {
   );
 
   return (
-    <div className={`py-4 ${isMobile ? 'pb-16' : ''}`}>
+    <div>
       <PageHeader
         title="Raid Bosses"
         description="Current raid bosses available in Pokémon GO"

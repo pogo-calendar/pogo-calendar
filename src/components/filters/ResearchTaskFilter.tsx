@@ -1,4 +1,5 @@
 import { useCallback } from 'react';
+import { usePageFiltersContext } from '../../hooks/usePageFiltersContext';
 import type { ResearchTaskFilters } from '../../types/pageFilters';
 import { Button } from '../ui/button';
 import { Checkbox } from '../ui/checkbox';
@@ -7,22 +8,13 @@ import { Label } from '../ui/label';
 import { Separator } from '../ui/separator';
 import { FilterActions, FilterSection } from './shared';
 
-interface ResearchTaskFilterProps {
-  filters: ResearchTaskFilters;
-  onFilterChange: (newFilters: ResearchTaskFilters) => void;
-  onResetFilters: () => void;
-  availableCategories: string[];
-  availableRewardTypes: string[];
-}
-
-function ResearchTaskFilter(props: ResearchTaskFilterProps) {
+function ResearchTaskFilter() {
   const {
     filters,
-    onFilterChange,
-    onResetFilters,
-    availableCategories,
-    availableRewardTypes,
-  } = props;
+    setFilters: onFilterChange,
+    resetFilters: onResetFilters,
+    options: { categories: availableCategories, rewardTypes: availableRewardTypes },
+  } = usePageFiltersContext().researchTask;
 
   const handleFilterChange = useCallback(
     <K extends keyof ResearchTaskFilters>(field: K, value: ResearchTaskFilters[K]) => {

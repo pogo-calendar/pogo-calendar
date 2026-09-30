@@ -1,4 +1,5 @@
 import { useCallback } from 'react';
+import { usePageFiltersContext } from '../../hooks/usePageFiltersContext';
 import type { RocketLineupFilters } from '../../types/pageFilters';
 import { Button } from '../ui/button';
 import { Checkbox } from '../ui/checkbox';
@@ -7,15 +8,13 @@ import { Label } from '../ui/label';
 import { Separator } from '../ui/separator';
 import { FilterActions, FilterSection } from './shared';
 
-interface RocketLineupFilterProps {
-  filters: RocketLineupFilters;
-  onFilterChange: (newFilters: RocketLineupFilters) => void;
-  onResetFilters: () => void;
-  availableLeaders: string[];
-}
-
-function RocketLineupFilter(props: RocketLineupFilterProps) {
-  const { filters, onFilterChange, onResetFilters, availableLeaders } = props;
+function RocketLineupFilter() {
+  const {
+    filters,
+    setFilters: onFilterChange,
+    resetFilters: onResetFilters,
+    options: { leaders: availableLeaders },
+  } = usePageFiltersContext().rocketLineup;
 
   const handleFilterChange = useCallback(
     <K extends keyof RocketLineupFilters>(field: K, value: RocketLineupFilters[K]) => {

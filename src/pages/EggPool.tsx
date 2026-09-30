@@ -11,33 +11,27 @@ import { Alert } from '../components/ui/alert';
 import { Badge } from '../components/ui/badge';
 import { Card, INTERACTIVE_CARD_CLASSNAME } from '../components/ui/card';
 import { EGG_COLORS, RARITY_TIERS } from '../config/colorMapping';
-import { MOBILE_QUERY, useMediaQuery } from '../hooks/useMediaQuery';
+import { usePageFiltersContext } from '../hooks/usePageFiltersContext';
 import { usePageData } from '../hooks/usePageData';
 import { fetchEggPool } from '../services/dataService';
 import type { EggPokemon, EggPoolData } from '../types/eggPool';
-import type { EggPoolFilters } from '../types/pageFilters';
 import { contrastColor } from '../utils/colorUtils';
 
-interface EggPoolPageProps {
-  filters: EggPoolFilters;
-  onSetFilterOptions: (options: { eggTiers: string[]; rarityTiers: string[] }) => void;
-}
-
-function EggPoolPage({ filters, onSetFilterOptions }: EggPoolPageProps) {
+function EggPoolPage() {
+  const { filters, setOptions } = usePageFiltersContext().eggPool;
   const { data, loading, error, refetch } = usePageData<EggPoolData>(
     fetchEggPool,
     'Failed to load egg pool data. Please try again later.'
   );
-  const isMobile = useMediaQuery(MOBILE_QUERY);
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
 
   useEffect(() => {
     if (data) {
       const eggTiers = Object.keys(data);
       const rarityTiers = Object.values(RARITY_TIERS).map((tier) => tier.label);
-      onSetFilterOptions({ eggTiers, rarityTiers });
+      setOptions({ eggTiers, rarityTiers });
     }
-  }, [data, onSetFilterOptions]);
+  }, [data, setOptions]);
 
   const filteredData = useMemo(() => {
     if (!data) return null;
@@ -152,7 +146,7 @@ function EggPoolPage({ filters, onSetFilterOptions }: EggPoolPageProps) {
   );
 
   return (
-    <div className={`py-4 ${isMobile ? 'pb-16' : ''}`}>
+    <div>
       <PageHeader
         title="Egg Pool"
         description="Current Pokémon available from different egg types"
