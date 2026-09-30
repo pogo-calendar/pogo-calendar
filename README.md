@@ -6,7 +6,7 @@ A comprehensive React application for tracking Pokémon GO events and game data.
 
 ## Live Demo
 
-You can view the live application here: `https://zhenga8533.github.io/pogo-calendar`
+You can view the live application here: `https://pogo-calendar.github.io/pogo-calendar`
 
 ---
 
@@ -203,7 +203,7 @@ src/
 
 1.  Clone the repository:
     ```bash
-    git clone https://github.com/zhenga8533/pogo-calendar.git
+    git clone https://github.com/pogo-calendar/pogo-calendar.git
     ```
 2.  Navigate into the project directory:
     ```bash
@@ -248,7 +248,7 @@ npm run build
     ```json
     {
       "name": "pogo-calendar",
-      "homepage": "https://zhenga8533.github.io/pogo-calendar",
+      "homepage": "https://pogo-calendar.github.io/pogo-calendar",
       "scripts": {
         "predeploy": "npm run build",
         "deploy": "gh-pages -d dist"
@@ -265,5 +265,5 @@ npm run build
 
 ## Credits & Attribution
 
-- The source code for the data scraper is available at [github.com/zhenga8533/leak-duck](https://github.com/zhenga8533/leak-duck).
+- The source code for the data scraper is available at [github.com/pogo-calendar/leak-duck](https://github.com/pogo-calendar/leak-duck).
 - All event information is gratefully sourced from [LeekDuck.com](https://leekduck.com/events/).

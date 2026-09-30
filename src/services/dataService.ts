@@ -10,7 +10,7 @@ import {
 } from './dataValidation';
 
 const GITHUB_BASE_URL =
-  'https://raw.githubusercontent.com/zhenga8533/leak-duck/data';
+  'https://raw.githubusercontent.com/pogo-calendar/leak-duck/data';
 
 export const GITHUB_EGG_POOL_URL = `${GITHUB_BASE_URL}/egg_pool.json`;
 export const GITHUB_RAID_BOSSES_URL = `${GITHUB_BASE_URL}/raid_bosses.json`;
